@@ -24,18 +24,20 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+  LandingZoneBucket:
+    Type: AWS::S3::Bucket
   DataIngestFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: data_ingest/
-      Handler: process.lambda_handler
+      Handler: ingest.lambda_handler
       Runtime: python3.7
       Events:
-        DataIngest:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        FileUpLoad:
+          Type: S3
           Properties:
-            Path: /ingest
-            Method: get
+            Bucket: !Ref LandingZoneBucket
+            Events: s3:ObjectCreated:*
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
