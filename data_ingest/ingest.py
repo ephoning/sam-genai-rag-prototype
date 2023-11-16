@@ -1,12 +1,9 @@
-import boto3
 import os
 import logging
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
-s3_client = boto3.client('s3')
 
 def read_file(bucket, key):
     try:

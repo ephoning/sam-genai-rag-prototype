@@ -18,6 +18,8 @@ Resources:
       CodeUri: hello_world/
       Handler: app.lambda_handler
       Runtime: python3.7
+      Layers:
+        - !Ref UtilsLayer
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -25,6 +27,17 @@ Resources:
             Path: /hello
             Method: get
             
+  UtilsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: hello-world-utils
+      Description: "AWS Lambda Layer experiment"
+      ContentUri: utils/
+      CompatibleRuntimes:
+        - python3.7
+        - python3.8
+        - python3.9
+        
   LandingZoneBucket:
     Type: AWS::S3::Bucket
     Properties:

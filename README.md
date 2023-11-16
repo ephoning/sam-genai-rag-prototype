@@ -7,8 +7,12 @@ The diagram below outlines the overall structure of the application:
 ![](aws-bedrock-arch-3-edited.jpg)
 
 
+### Vector DB
 Currently, it is unclear how to use AWS SAM to provision a service from the AWS Marketplace and capture access credentials for such a service for use in the project's AWS SAM template.
-The credentials Pincone vector DB that was provisioned for the AWS Bedrock workshop have for now been hardcoded in the appropriate 'Globals'
+The credentials for the Pincone vector DB that was provisioned for the AWS Bedrock workshop have for now been hardcoded in the appropriate 'Globals' in template.yaml.
+
+Initialization of the index for the vector DB and fetching a connection is done in the 'static initialization' section of the DataIngest lambda - i.e., outside of the handler function. function.
+
 
 -------------------
 

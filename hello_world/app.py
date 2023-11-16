@@ -1,6 +1,8 @@
 import json
 
-# import requests
+# lambda layer usage experiment
+from eph_doc_handler import *
+
 
 
 def lambda_handler(event, context):
@@ -33,10 +35,12 @@ def lambda_handler(event, context):
 
     #     raise e
 
+    txt_from_layer = handle_doc()
+    
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": "hello world",
+            "message": f"hello world + {txt_from_layer}",
             # "location": ip.text.replace("\n", "")
         }),
     }
