@@ -6,6 +6,13 @@ The diagram below outlines the overall structure of the application:
 
 ![](aws-bedrock-arch-3-edited.jpg)
 
+
+Currently, it is unclear how to use AWS SAM to provision a service from the AWS Marketplace and capture access credentials for such a service for use in the project's AWS SAM template.
+The credentials Pincone vector DB that was provisioned for the AWS Bedrock workshop have for now been hardcoded in the appropriate 'Globals'
+
+-------------------
+
+
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
 - hello_world - Code for the application's Lambda function.
