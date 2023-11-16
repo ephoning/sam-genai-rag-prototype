@@ -1,5 +1,11 @@
 # sam-genai-rag-prototype
 
+This project is an example of an AWS SAM orchestrated set of resources that form an genAI RAG application.
+It is intended to serve as a baseline for the development of a PoC for Medtronics.
+The diagram below outlines the overall structure of the application:
+
+![](aws-bedrock-arch-3-edited.jpg)
+
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
 - hello_world - Code for the application's Lambda function.
