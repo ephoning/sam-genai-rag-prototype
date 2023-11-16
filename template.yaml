@@ -3,35 +3,40 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   sam-genai-rag-prototype
 
-  Sample SAM Template for sam-genai-rag-prototype
+  SAM Template for sam-genai-rag-prototype
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 3
     MemorySize: 128
+    Environment:
+      Variables:
+        PINECONE_API_KEY: "4995b4bc-bb2d-4dfe-8bb3-992a10ea9854"
+        PINECONE_ENVIRONMENT: "gcp-starter"
+        PINECONE_INDEX_NAME: "agda-knowledge-base"
 
 Resources:
-  HelloWorldFunction:
+  QAFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: hello_world/
-      Handler: app.lambda_handler
+      CodeUri: qa/
+      Handler: invoke.lambda_handler
       Runtime: python3.7
       Layers:
         - !Ref UtilsLayer
       Events:
-        HelloWorld:
+        QA:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /hello
+            Path: /qa
             Method: get
             
   UtilsLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: hello-world-utils
-      Description: "AWS Lambda Layer experiment"
+      LayerName: utils
+      Description: "AWS Lambda Layer / shared utility functionality"
       ContentUri: utils/
       CompatibleRuntimes:
         - python3.7
@@ -85,7 +90,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: data_ingest/
-      Handler: ingest.lambda_handler
+      Handler: invoke.lambda_handler
       Runtime: python3.7
       Events:
         FileUpLoad:
@@ -98,15 +103,15 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+  QAApi:
+    Description: "API Gateway endpoint URL for Prod stage for Q&A function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/qa/"
+  QAFunction:
+    Description: "Q&A Lambda Function ARN"
+    Value: !GetAtt QAFunction.Arn
+  QAFunctionIamRole:
+    Description: "Implicit IAM Role created for Q&A function"
+    Value: !GetAtt QAFunctionRole.Arn
 
   LandingZoneBucketName:
     Description: "name of S3 bucket used as a file landing zone"
@@ -115,9 +120,6 @@ Outputs:
     Description: "Arn of the landing zone bucket's access point"
     Value: !GetAtt LandigZoneBucketAccessPoint.Arn
     
-  DataIngestdApi:
-    Description: "API Gateway endpoint URL for Prod stage for Data Ingest function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/ingest/"
   DataIngestFunction:
     Description: "Data Ingest Lambda Function ARN"
     Value: !GetAtt DataIngestFunction.Arn

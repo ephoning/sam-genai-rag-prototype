@@ -1,8 +1,11 @@
 import json
 
 # lambda layer usage experiment
-from eph_doc_handler import *
+from bedrock import get_bedrock_client
+from doc_handler import *
 
+
+bedrock_client = get_bedrock_client()
 
 
 def lambda_handler(event, context):
@@ -27,20 +30,13 @@ def lambda_handler(event, context):
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
 
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
-
     txt_from_layer = handle_doc()
+    txt_bedrock_client = str(bedrock_client)
     
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": f"hello world + {txt_from_layer}",
+            "message": f"hello world + {txt_from_layer} + {txt_bedrock_client}",
             # "location": ip.text.replace("\n", "")
         }),
     }
