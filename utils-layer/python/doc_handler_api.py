@@ -25,7 +25,7 @@ def read_file_RAW(bucket, key):
 
 def pdf_file_reader(bucket, key) -> str:
     try:
-        response = s3_client.get_object(Bucket=bucket, Key=key)
+        response = s3_client.ObjectSummary(bucket, key).get()
         contents = response['Body'].read()
         pdf = PdfFileReader(BytesIO(contents))
         text = pdf.getFormTextFields()
