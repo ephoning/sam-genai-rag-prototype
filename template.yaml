@@ -19,21 +19,6 @@ Globals:
         DEFAULT_EMBEDDINGS_MODEL_ID: "amazon.titan-embed-text-v1"
 
 Resources:
-  QAFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: qa/
-      Handler: invoke.lambda_handler
-      Runtime: python3.7
-      Layers:
-        - !Ref Boto3Layer
-        - !Ref UtilsLayer
-      Events:
-        QA:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /qa
-            Method: get
             
   Boto3Layer:
     Type: AWS::Serverless::LayerVersion
@@ -41,6 +26,17 @@ Resources:
       LayerName: boto3-layer
       Description: "AWS Lambda Layer / latest boto3 version functionality"
       ContentUri: boto3-layer/
+      CompatibleRuntimes:
+        - python3.7
+        - python3.8
+        - python3.9
+        
+  LibsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: libs-layer
+      Description: "AWS Lambda Layer / various external librariesfunctionality"
+      ContentUri: libs-layer/
       CompatibleRuntimes:
         - python3.7
         - python3.8
@@ -99,7 +95,6 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
       
-    
   DataIngestFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -109,12 +104,30 @@ Resources:
       Layers:
         - !Ref Boto3Layer
         - !Ref UtilsLayer
+        - !Ref: LibsLayer
       Events:
         FileUpLoad:
           Type: S3
           Properties:
             Bucket: !Ref LandingZoneBucket
             Events: s3:ObjectCreated:*
+            
+  QAFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: qa/
+      Handler: invoke.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref Boto3Layer
+        - !Ref UtilsLayer
+        - !Ref LibsLayer
+      Events:
+        QA:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /qa
+            Method: get
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
