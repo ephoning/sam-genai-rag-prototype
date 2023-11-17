@@ -14,6 +14,39 @@ The credentials for the Pincone vector DB that was provisioned for the AWS Bedro
 Initialization of the index for the vector DB and fetching a connection is done in the 'static initialization' section of the DataIngest lambda - i.e., outside of the handler function. function.
 
 
+## AWS Lambda Layers
+
+### boto3-layer
+
+This to get a new enough boto3 version that provides access to the 'bedrock' service
+
+populate using:
+```bash
+$ cd boto3-layer/python
+$ pip install boto3 -t .
+```
+
+### libs-layer
+
+This to provide multiple shared dependencies
+
+populate using:
+```bash
+$ cd libs-layer/python
+$ pip install "urllib3<2" -t .
+$ pip install langchain -t .
+$ pip install PyPDF2 ot .
+```
+
+### utils-layer
+
+This to provide local custom utility functionality across lambda functions
+
+location:
+```bash
+utils-layer/python
+```
+
 -------------------
 
 

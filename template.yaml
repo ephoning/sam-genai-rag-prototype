@@ -38,7 +38,6 @@ Resources:
       Description: "AWS Lambda Layer / various external librariesfunctionality"
       ContentUri: libs-layer/
       CompatibleRuntimes:
-        - python3.7
         - python3.8
         - python3.9
         
@@ -100,11 +99,11 @@ Resources:
     Properties:
       CodeUri: data_ingest/
       Handler: invoke.lambda_handler
-      Runtime: python3.7
+      Runtime: python3.8
       Layers:
         - !Ref Boto3Layer
         - !Ref UtilsLayer
-        - !Ref: LibsLayer
+        - !Ref LibsLayer
       Events:
         FileUpLoad:
           Type: S3
@@ -117,7 +116,7 @@ Resources:
     Properties:
       CodeUri: qa/
       Handler: invoke.lambda_handler
-      Runtime: python3.7
+      Runtime: python3.8
       Layers:
         - !Ref Boto3Layer
         - !Ref UtilsLayer

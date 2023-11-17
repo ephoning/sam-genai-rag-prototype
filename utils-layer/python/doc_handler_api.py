@@ -38,7 +38,7 @@ FILE_READERS = {
     "pdf": pdf_file_reader
 }
 
-def read_file(bucker,key):
+def read_file(bucket, key):
     extension = key.split('.')[1]
     file_reader = FILE_READERS.get(extension)
     if file_reader:
