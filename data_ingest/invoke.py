@@ -1,7 +1,7 @@
 import os
 import logging
 
-from doc_handler_api import *
+from doc_handler_api import handle_document
 
 
 logger = logging.getLogger()
@@ -15,8 +15,9 @@ def lambda_handler(event, context):
     logger.info(log_info)
     log_info = ""
     for r in event['Records']:
-        bucketname = r['s3']['bucket']['name']
-        newfilename = r['s3']['object']['key']
-        log_info += f"Bucket / new file: {bucketname} / {newfilename}\n"
-        log_info += f"{read_file(bucketname, newfilename)}\n"
-    logger.info(log_info)
+        bucket = r['s3']['bucket']['name']
+        key = r['s3']['object']['key']
+        log_info += f"Bucket / new object: {bucket} / {key}\n"
+        logger.info(log_info)
+    
+        handle_document(bucket, key)

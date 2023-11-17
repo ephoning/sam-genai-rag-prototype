@@ -23,7 +23,7 @@ This to get a new enough boto3 version that provides access to the 'bedrock' ser
 populate using:
 ```bash
 $ cd boto3-layer/python
-$ pip install boto3 -t .
+$ pip install boto3==1.29.2 -t .
 ```
 
 ### libs-layer
@@ -35,7 +35,9 @@ populate using:
 $ cd libs-layer/python
 $ pip install "urllib3<2" -t .
 $ pip install langchain -t .
-$ pip install PyPDF2 ot .
+$ pip install PyPDF2 -t .      # maybe remove?!?
+$ pip install pinecone-client -t . 
+$ pip install pypdf -t .
 ```
 
 ### utils-layer
