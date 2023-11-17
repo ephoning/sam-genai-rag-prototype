@@ -1,11 +1,10 @@
 import json
 
 # lambda layer usage experiment
-from bedrock import get_bedrock_client
-from doc_handler import *
+from bedrock_api import get_bedrock_client
 
 
-bedrock_client = get_bedrock_client(runtime=False)
+bedrock_client = get_bedrock_client()
 
 
 def lambda_handler(event, context):

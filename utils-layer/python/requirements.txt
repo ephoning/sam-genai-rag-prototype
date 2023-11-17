@@ -1,3 +1,4 @@
 boto3==1.28.85
 langchain
 pinecone-client
+PyPDF2
