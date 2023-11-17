@@ -18,5 +18,5 @@ def lambda_handler(event, context):
         bucketname = r['s3']['bucket']['name']
         newfilename = r['s3']['object']['key']
         log_info += f"Bucket / new file: {bucketname} / {newfilename}\n"
-        log_info += f"{read_file(bucketname, newfilename)}\n"
+        log_info += f"{read_file(bucketname, newfilename)[:32]}\n"
     logger.info(log_info)
