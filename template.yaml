@@ -15,6 +15,8 @@ Globals:
         PINECONE_API_KEY: "4995b4bc-bb2d-4dfe-8bb3-992a10ea9854"
         PINECONE_ENVIRONMENT: "gcp-starter"
         PINECONE_INDEX_NAME: "agda-knowledge-base"
+        DEFAULT_MODEL_ID: 'anthropic.claude-instant-v1'
+        DEFAULT_EMBEDDINGS_MODEL_ID: "amazon.titan-embed-text-v1"
 
 Resources:
   QAFunction:
@@ -24,6 +26,7 @@ Resources:
       Handler: invoke.lambda_handler
       Runtime: python3.7
       Layers:
+        - !Ref Boto3Layer
         - !Ref UtilsLayer
       Events:
         QA:
@@ -32,12 +35,23 @@ Resources:
             Path: /qa
             Method: get
             
+  Boto3Layer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: boto3-layer
+      Description: "AWS Lambda Layer / latest boto3 version functionality"
+      ContentUri: boto3-layer/
+      CompatibleRuntimes:
+        - python3.7
+        - python3.8
+        - python3.9
+        
   UtilsLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: utils
+      LayerName: utils-layer
       Description: "AWS Lambda Layer / shared utility functionality"
-      ContentUri: utils/
+      ContentUri: utils-layer/
       CompatibleRuntimes:
         - python3.7
         - python3.8
@@ -92,6 +106,9 @@ Resources:
       CodeUri: data_ingest/
       Handler: invoke.lambda_handler
       Runtime: python3.7
+      Layers:
+        - !Ref Boto3Layer
+        - !Ref UtilsLayer
       Events:
         FileUpLoad:
           Type: S3

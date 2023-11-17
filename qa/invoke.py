@@ -5,7 +5,7 @@ from bedrock import get_bedrock_client
 from doc_handler import *
 
 
-bedrock_client = get_bedrock_client()
+bedrock_client = get_bedrock_client(runtime=False)
 
 
 def lambda_handler(event, context):
