@@ -30,6 +30,7 @@ def populate_pinecone_index(docs, bedrock_embeddings, index_name, verbose=False)
     """
     populate Pincone index with the document embeddings
     """
+    logger.info(f"add docs and their embeddings to pincone index using '{bedrock_embeddings}'/'{index_name}'")
     docsearch = Pinecone.from_documents(documents=docs, embedding=bedrock_embeddings, index_name=index_name)
     if verbose:
         index = pinecone.Index(index_name)

@@ -3,6 +3,7 @@ import os
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import logging
+import traceback
 from typing import Any, Dict, List
 
 from s3_api import download_object
@@ -69,6 +70,8 @@ def handle_document(bucket, key):
         
     except Exception as e:
         logger.error(f"Failed to process contents of '{bucket}' / '{key}' due to: '{e}' - ignoring")
+        tb = traceback.format_exc()
+        logger.error(f"Traceback: {tb}")
         
     finally:
         if os.path.exists(local_file_path):

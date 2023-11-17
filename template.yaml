@@ -17,7 +17,7 @@ Globals:
         PINECONE_INDEX_NAME: "agda-knowledge-base"
         DEFAULT_MODEL_ID: 'anthropic.claude-instant-v1'
         DEFAULT_EMBEDDINGS_MODEL_ID: "amazon.titan-embed-text-v1"
-        EMBEDDING_DIMENSION: 1600   # embedding vector dimensionality; should be based on a sample text chunk embedding...
+        EMBEDDING_DIMENSION: 1536   # embedding vector dimensionality; should be based on a sample text chunk embedding...
 
 Resources:
             
@@ -83,7 +83,7 @@ Resources:
                   - varLandingZoneBucketArn: !GetAtt LandingZoneBucket.Arn
             Principal:
               AWS: '*'
-              
+
   LandigZoneBucketAccessPoint:
     Type: 'AWS::S3::AccessPoint'
     Properties:

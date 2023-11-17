@@ -135,18 +135,30 @@ class Pinecone(VectorStore):
             chunk_ids = ids[i : i + embedding_chunk_size]
             chunk_metadatas = metadatas[i : i + embedding_chunk_size]
             embeddings = self._embed_documents(chunk_texts)
-            async_res = [
+            
+            # EPH ORIG
+            # async_res = [
+            #     self._index.upsert(
+            #         vectors=batch,
+            #         namespace=namespace,
+            #         async_req=True,      # EPH modified to avoid threadpool spin-up
+            #         **kwargs,
+            #     )
+            #     for batch in batch_iterate(
+            #         batch_size, zip(chunk_ids, embeddings, chunk_metadatas)
+            #     )
+            # ]
+            # [res.get() for res in async_res]
+            
+            for batch in batch_iterate(
+                batch_size, zip(chunk_ids, embeddings, chunk_metadatas)
+            ):
                 self._index.upsert(
                     vectors=batch,
                     namespace=namespace,
-                    async_req=True,
+                    async_req=False,      # EPH modified to avoid threadpool spin-up
                     **kwargs,
                 )
-                for batch in batch_iterate(
-                    batch_size, zip(chunk_ids, embeddings, chunk_metadatas)
-                )
-            ]
-            [res.get() for res in async_res]
 
         return ids
 

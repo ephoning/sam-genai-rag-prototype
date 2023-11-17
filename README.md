@@ -7,7 +7,8 @@ The diagram below outlines the overall structure of the application:
 ![](aws-bedrock-arch-3-edited.jpg)
 
 
-NOTE: access to desired LLM & embeddings models needs to be requested at the following location: <TODO>
+NOTE: access to desired LLM & embeddings models needs to be requested at the following location:
+![](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)
 
 Currently, it is unclear how to use AWS SAM to provision a service from the AWS Marketplace and capture access credentials for such a service for use in the project's AWS SAM template.
 The credentials for the Pincone vector DB that was provisioned for the AWS Bedrock workshop have for now been hardcoded in the appropriate 'Globals' in template.yaml.
@@ -49,6 +50,11 @@ location:
 ```bash
 utils-layer/python
 ```
+
+-------------------
+# Custom fixes
+* in an attempt to perform Pinecone embedding inserts synchronously (to avoid threadpool spinup that is not allowed in AWS Lambda) the following mod was made:
+** in file libs-layer/python/langchain/vectorstores/pinecone.py:   lines 139-160: async_req=False, and no asyn results collection
 
 -------------------
 
