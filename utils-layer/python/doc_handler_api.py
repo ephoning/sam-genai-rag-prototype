@@ -1,7 +1,7 @@
 from io import BytesIO
 import os
 import logging
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfReader
 
 from s3_api import get_s3_client
 
@@ -27,8 +27,8 @@ def pdf_file_reader(bucket, key) -> str:
     try:
         response = s3_client.ObjectSummary(bucket, key).get()
         contents = response['Body'].read()
-        pdf = PdfFileReader(BytesIO(contents))
-        text = pdf.getFormTextFields()
+        pdf = PdfReader(BytesIO(contents))
+        text = pdf.get_form_text_fields()
         return text   
     except Exception as e:
         return f"Failed to read contents of {bucket} / {key} due to: {e}"
