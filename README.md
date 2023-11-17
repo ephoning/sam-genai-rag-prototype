@@ -7,7 +7,8 @@ The diagram below outlines the overall structure of the application:
 ![](aws-bedrock-arch-3-edited.jpg)
 
 
-### Vector DB
+NOTE: access to desired LLM & embeddings models needs to be requested at the following location: <TODO>
+
 Currently, it is unclear how to use AWS SAM to provision a service from the AWS Marketplace and capture access credentials for such a service for use in the project's AWS SAM template.
 The credentials for the Pincone vector DB that was provisioned for the AWS Bedrock workshop have for now been hardcoded in the appropriate 'Globals' in template.yaml.
 

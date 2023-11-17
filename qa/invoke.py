@@ -29,7 +29,7 @@ def lambda_handler(event, context):
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
 
-    txt_from_layer = handle_doc()
+    txt_from_layer = "TBD"
     txt_bedrock_client = str(bedrock_client)
     
     return {

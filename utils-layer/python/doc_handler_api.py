@@ -6,49 +6,37 @@ import logging
 from typing import Any, Dict, List
 
 from s3_api import download_object
+from bedrock_api import get_bedrock_client, get_embeddings_client
+from vector_db_api import populate_pinecone_index
 
 
 local_temp_storage_root = '/tmp'
 
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-
-# def txt_file_reader(bucket, key) -> str:
-#     contents = get_object_body(bucket, key)
-#     return contents
-
-    
-# def pdf_file_reader(bucket, key) -> str:
-#     contents = get_object_body(bucket, key)
-#     reader = PdfReader(BytesIO(contents))
-#     text = ''
-#     for page in reader.pages:
-#       text += page.extract_text() 
-#     return text   
-
-    
-# file_readers = {
-#     "pdf": pdf_file_reader,
-#     "txt": txt_file_reader
-# }
-
-
-# def read_file(bucket, key):
-#     extension = key.split('.')[1]
-#     file_reader = file_readers.get(extension)
-#     if file_reader:
-#         return file_reader(bucket, key)
-#     else:
-#         raise Exception(f"Files of type '{extension}' currently not supported")
-        
+bedrock_client = None
+embeddings_client = None
 
 document_loader_constructors = {
     "pdf": lambda file_path: PyPDFLoader(file_path)
 }
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
+
+def get_clients():
+    global bedrock_client
+    global embeddings_client
+    embeddings_model_id = os.environ['DEFAULT_EMBEDDINGS_MODEL_ID']
+    
+    logger.info(f"getting bedrock (embeddings) client for model with id '{embeddings_model_id}'")
+    if not bedrock_client:
+        bedrock_client = get_bedrock_client()
+    if not embeddings_client:
+        embeddings_client = get_embeddings_client(bedrock_client, embeddings_model_id)
+    return bedrock_client, embeddings_client
+
+    
 def create_doc_chunks(local_file_path: str, metadata: Dict[str, Any], chunk_size=1000, chunk_overlap=100) -> List[Any]:
     extension = local_file_path.split('.')[1]
     doc_loader = document_loader_constructors.get(extension)(local_file_path)
@@ -67,6 +55,9 @@ def create_doc_chunks(local_file_path: str, metadata: Dict[str, Any], chunk_size
 
 
 def handle_document(bucket, key):
+    _, embeddings_client = get_clients()
+
+    index_name = os.environ['PINECONE_INDEX_NAME']
     local_file_path = f"{local_temp_storage_root}/{key}"
     metadata = dict(name=key)
     
@@ -74,9 +65,10 @@ def handle_document(bucket, key):
         download_object(bucket, key, local_file_path)
         doc_chunks = create_doc_chunks(local_file_path, metadata)
         logger.info(f"first doc chunk details: {doc_chunks[0]}")
+        populate_pinecone_index(doc_chunks, embeddings_client, index_name, verbose=True)
         
     except Exception as e:
-        logger.error(f"Failed to read contents of '{bucket}' / '{key}' due to: '{e}' - ignoring")
+        logger.error(f"Failed to process contents of '{bucket}' / '{key}' due to: '{e}' - ignoring")
         
     finally:
         if os.path.exists(local_file_path):

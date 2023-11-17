@@ -17,6 +17,7 @@ Globals:
         PINECONE_INDEX_NAME: "agda-knowledge-base"
         DEFAULT_MODEL_ID: 'anthropic.claude-instant-v1'
         DEFAULT_EMBEDDINGS_MODEL_ID: "amazon.titan-embed-text-v1"
+        EMBEDDING_DIMENSION: 1600   # embedding vector dimensionality; should be based on a sample text chunk embedding...
 
 Resources:
             
@@ -94,6 +95,22 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
       
+  BootstrapFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: bootstrap/
+      Handler: invoke.lambda_handler
+      Runtime: python3.8
+      Layers:
+        - !Ref UtilsLayer
+        - !Ref LibsLayer
+      Events:
+        QA:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /bootstrap
+            Method: get
+
   DataIngestFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
