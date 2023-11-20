@@ -52,6 +52,32 @@ utils-layer/python
 ```
 
 -------------------
+Curerntly, IAM related configuration and/or resource creation is accomplished using the AWS' web UI.
+
+* Allow the 'data ingest' lambda to invoke models per:
+```
+            use IAM UI
+            - in sam-genai-rag-prototype CloudFormation stack, browse to ...dataiingestfunctionrole...
+            - select: Add permissions - Create inline policy
+
+            - select: Secect a service: bedrock
+            - Actions allowed
+             - Effect radiobutton: 'Allow'
+             - select 'Read' - 'all read actions'
+                note that'Read' includes 'InvokeModel'
+                
+            - Resources
+              - select 'All' radiobutton for now
+
+            - click 'Next'
+            - Review and create
+              - give policy name; e.g., 'dataingestfunction-bedrock-model-read-access'
+            - click 'Create policy'
+
+```
+
+
+-------------------
 # Custom fixes
 * in an attempt to perform Pinecone embedding inserts synchronously (to avoid threadpool spinup that is not allowed in AWS Lambda) the following mod was made:
 ** in file libs-layer/python/langchain/vectorstores/pinecone.py:   lines 139-160: async_req=False, and no asyn results collection
