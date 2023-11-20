@@ -56,23 +56,23 @@ Curerntly, IAM related configuration and/or resource creation is accomplished us
 
 * Allow the 'data ingest' lambda to invoke models per:
 ```
-            use IAM UI
-            - in sam-genai-rag-prototype CloudFormation stack, browse to ...dataiingestfunctionrole...
-            - select: Add permissions - Create inline policy
+      using the IAM UI
+      - in sam-genai-rag-prototype CloudFormation stack, browse to ...dataiingestfunctionrole...
+      - select: Add permissions - Create inline policy
 
-            - select: Secect a service: bedrock
-            - Actions allowed
-             - Effect radiobutton: 'Allow'
-             - select 'Read' - 'all read actions'
-                note that'Read' includes 'InvokeModel'
+      - select: Select a service: bedrock
+      - Actions allowed
+        - Effect radiobutton: 'Allow'
+        - select 'Read' - 'all read actions'
+          note that'Read' includes 'InvokeModel'
                 
-            - Resources
-              - select 'All' radiobutton for now
+      - Resources
+        - select 'All' radiobutton for now
 
-            - click 'Next'
-            - Review and create
-              - give policy name; e.g., 'dataingestfunction-bedrock-model-read-access'
-            - click 'Create policy'
+      - click 'Next'
+      - Review and create
+        - give policy name; e.g., 'dataingestfunction-bedrock-model-read-access'
+      - click 'Create policy'
 
 ```
 
