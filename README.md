@@ -75,6 +75,7 @@ Curerntly, IAM related configuration and/or resource creation is accomplished us
       - click 'Create policy'
 
 ```
+* Repeat the above IAM UI interaction for the QAFunction lambda
 
 
 -------------------

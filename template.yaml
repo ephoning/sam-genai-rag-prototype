@@ -12,12 +12,13 @@ Globals:
     MemorySize: 128
     Environment:
       Variables:
-        PINECONE_API_KEY: "4995b4bc-bb2d-4dfe-8bb3-992a10ea9854"
-        PINECONE_ENVIRONMENT: "gcp-starter"
-        PINECONE_INDEX_NAME: "agda-knowledge-base"
+        DEFAULT_PINECONE_API_KEY: "4995b4bc-bb2d-4dfe-8bb3-992a10ea9854"
+        DEFAULT_PINECONE_ENVIRONMENT: "gcp-starter"
+        DEFAULT_PINECONE_INDEX_NAME: "agda-knowledge-base"
         DEFAULT_MODEL_ID: 'anthropic.claude-instant-v1'
         DEFAULT_EMBEDDINGS_MODEL_ID: "amazon.titan-embed-text-v1"
         EMBEDDING_DIMENSION: 1536   # embedding vector dimensionality; should be based on a sample text chunk embedding...
+        DEFAULT_MAX_TOKEN_LIMIT: 1000
 
 Resources:
             

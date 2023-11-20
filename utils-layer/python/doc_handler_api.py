@@ -28,13 +28,11 @@ logger.setLevel(logging.INFO)
 def get_clients():
     global bedrock_client
     global embeddings_client
-    embeddings_model_id = os.environ['DEFAULT_EMBEDDINGS_MODEL_ID']
-    
-    logger.info(f"getting bedrock (embeddings) client for model with id '{embeddings_model_id}'")
+
     if not bedrock_client:
         bedrock_client = get_bedrock_client()
     if not embeddings_client:
-        embeddings_client = get_embeddings_client(bedrock_client, embeddings_model_id)
+        embeddings_client = get_embeddings_client(bedrock_client)
     return bedrock_client, embeddings_client
 
     
@@ -66,8 +64,9 @@ def handle_document(bucket, key):
         download_object(bucket, key, local_file_path)
         doc_chunks = create_doc_chunks(local_file_path, metadata)
         logger.info(f"first doc chunk details: {doc_chunks[0]}")
-        populate_pinecone_index(doc_chunks, embeddings_client, index_name, verbose=True)
-        
+        logger.info("Start inserting doc chunks into Pinecone")
+        populate_pinecone_index(doc_chunks, embeddings_client, index_name, verbose=False)
+        logger.info("Inserting doc chunks into Pinecone completed")
     except Exception as e:
         logger.error(f"Failed to process contents of '{bucket}' / '{key}' due to: '{e}' - ignoring")
         tb = traceback.format_exc()

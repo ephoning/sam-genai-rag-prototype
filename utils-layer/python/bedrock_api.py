@@ -22,6 +22,9 @@ from constants import *
 # os.environ["BEDROCK_ASSUME_ROLE"] = "<YOUR_ROLE_ARN>"  # E.g. "arn:aws:..."
 
 
+default_embeddings_model_id = os.environ["DEFAULT_EMBEDDINGS_MODEL_ID"]
+default_model_id = os.environ["DEFAULT_MODL_ID"]
+default_inference_modifier = os.environ["DEFAULT_INFERENCE_MODIFIER"]
 
 
 def get_bedrock_client():
@@ -33,9 +36,9 @@ def get_bedrock_client():
 
 def get_langchain_client(bedrock_client, model_id=None, inference_modifier=None):
     if not model_id:
-        model_id = DEFAULT_MODEL_ID
+        model_id = default_model_id
     if not inference_modifier:
-        inference_modifier = DEFAULT_INFERENCE_MODIFIER        
+        inference_modifier = default_inference_modifier        
     lc_client = Bedrock(
         model_id=model_id,
         client=bedrock_client,
@@ -46,7 +49,7 @@ def get_langchain_client(bedrock_client, model_id=None, inference_modifier=None)
 
 def get_embeddings_client(bedrock_client, model_id=None):
     if not model_id:
-        model_id = DEFAULT_EMBEDDINGS_MODEL_ID
+        model_id = default_embeddings_model_id
     embeddings_client = BedrockEmbeddings(model_id=model_id, client=bedrock_client)
     return embeddings_client
 

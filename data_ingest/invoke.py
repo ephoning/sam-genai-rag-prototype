@@ -9,7 +9,6 @@ logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
-    log_info = ""
     log_info += "=== full event details: ===\n"
     log_info += f"{event}\n"
     logger.info(log_info)

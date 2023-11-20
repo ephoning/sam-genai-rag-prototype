@@ -1,3 +1,4 @@
+import json
 import os
 
 
@@ -54,9 +55,53 @@ PROMPT_TEXTS = {
 }
 
 
+BODY_COMPOSERS = {
+    ANTHROPIC_INSTANT: lambda prompt: json.dumps({
+        "prompt": prompt, 
+        "max_tokens_to_sample": 500,
+    }),
+    
+    TITAN_LARGE: lambda prompt: json.dumps({
+        "inputText": prompt, 
+        "textGenerationConfig":{
+        "maxTokenCount":4096,
+        "stopSequences":[],
+        "temperature":0,
+        "topP":0.9
+        }})
+}
+
+
+# ==== (Anthropic RAG usage related) ====
+_ANTHROPIC_QA_PROMPT_TEMPLATE = """
+
+Human: Use the following pieces of context to provide a concise answer to the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+{context}
+
+Question: {question}
+
+Assistant:"""
+ANTHROPIC_QA_PROMPT_TEMPLATE = PromptTemplate(template=_ANTHROPIC_QA_PROMPT_TEMPLATE, 
+                                              input_variables=["context", "question"])
+
+
+# ==== non-streaming response parsers ====
+RESPONSE_PARSERS = {
+    ANTHROPIC_INSTANT: lambda response_body: response_body.get("completion"),
+
+    TITAN_LARGE: lambda response_body : response_body.get('results')[0].get('outputText')
+}
+
+
+# ===================================================
+
+DEFAULT_PINECONE_API_KEY = os.environ["DEFAULT_PINECONE_API_KEY"]
+DEFAUL_PINECONE_ENVIRONMENT = os.environ["DEFAULT_PINECONE_ENVIRONMENT"]
+DEFAULT_PINECONE_INDEX_NAME = os.environ["DEFAULT_PINECONE_INDEX_NAME"]
+
 DEFAULT_MODEL_ID = os.environ["DEFAULT_MODEL_ID"]
 DEFAULT_EMBEDDINGS_MODEL_ID = os.environ["DEFAULT_EMBEDDINGS_MODEL_ID"]
-
 
 DEFAULT_INFERENCE_MODIFIER = {
             "max_tokens_to_sample": 4096,

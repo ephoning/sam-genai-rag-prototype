@@ -4,12 +4,24 @@ import pinecone
 import time
 from typing import Any
 
+from constants import *
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+# limit the docs counts to try and avoid the Lambda timeing out
+max_docs = 300 
+# insert at most this many docs at one time in 'populate_pinecone_index'
+# see also: https://docs.pinecone.io/reference/upsert
+max_docs_batch_length = 100 
+
 def create_pinecone_index(index_name: str, api_key: str, environment: str, dimension: int, metric='dotproduct', verbose=False) -> None:
+    if not environment:
+        environment = DEFAULT_PINECONE_ENVIRONMENT
+    if not index_name:
+        index_name = DEFAULT_PINECONE_INDEX_NAME
+        
     pinecone.init(api_key=api_key, environment=environment)
     logger.info("Pinecone initialized")
     if index_name in pinecone.list_indexes():
@@ -26,15 +38,36 @@ def create_pinecone_index(index_name: str, api_key: str, environment: str, dimen
         index.describe_index_stats()
 
 
+def split_list(l, n): 
+    for i in range(0, len(l), n):  
+        yield l[i:i + n] 
+        
 def populate_pinecone_index(docs, bedrock_embeddings, index_name, verbose=False):
     """
     populate Pincone index with the document embeddings
+    for now: limit this to at most 'max_docs' insertions
     """
+    if not index_name:
+        index_name = DEFAULT_PINECONE_INDEX_NAME
+    
     logger.info(f"add docs and their embeddings to pincone index using '{bedrock_embeddings}'/'{index_name}'")
-    docsearch = Pinecone.from_documents(documents=docs, embedding=bedrock_embeddings, index_name=index_name)
+    if len(docs) > max_docs:
+        logger.info(f"Truncating docs from {len(docs)} to {max_docs} to avoid AWS Lambda timeout")
+        docs = docs[:max_docs]
+    docs_sections = list(split_list(docs, max_docs_batch_length))
+    for idx, docs_section in enumerate(docs_sections):
+        logger.info(f"adding docs batch {idx}")
+        try:
+            docsearch = Pinecone.from_documents(documents=docs_section, embedding=bedrock_embeddings, index_name=index_name)
+        except Exception as e:
+            logger.error(f"Failed to insert docs batch {idx} into Pinecone index")
+    
     if verbose:
-        index = pinecone.Index(index_name)
-        index.describe_index_stats()
+        try:
+            index = pinecone.Index(index_name)
+            index.describe_index_stats()
+        except:
+            logger.error("Failed to describe Pinecone index stats")
 
 
 
@@ -43,6 +76,13 @@ def retrieve_pinecone_vectorstore(bedrock_embeddings, index_name, api_key, envir
     """
     register/connect Pinecone index to langchain
     """
+    if not api_key:
+        api_key = DEFAULT_PINECONE_API_KEY
+    if not environment:
+        environment = DEFAULT_PINECONE_ENVIRONMENT
+    if not index_name:
+        index_name = DEFAULT_PINECONE_INDEX_NAME
+        
     pinecone.init(api_key=api_key, environment=environment)
     index = pinecone.Index(index_name)
     vectorstore = Pinecone(index, bedrock_embeddings, text_field)
