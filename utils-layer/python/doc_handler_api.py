@@ -57,7 +57,7 @@ def create_doc_chunks(local_file_path: str, metadata: Dict[str, Any], chunk_size
 def handle_document(bucket, key):
     _, embeddings_client = get_clients()
 
-    index_name = os.environ['PINECONE_INDEX_NAME']
+    index_name = os.environ['DEFAULT_PINECONE_INDEX_NAME']
     local_file_path = f"{local_temp_storage_root}/{key}"
     metadata = dict(source=key)  # note: 'source' matches what is expected when running inference with source attribution
     

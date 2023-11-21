@@ -11,7 +11,7 @@ logger.setLevel(logging.INFO)
 
 index_name = os.environ['DEFAULT_PINECONE_INDEX_NAME']
 api_key = os.environ["DEFAULT_PINECONE_API_KEY"]
-environment = os.environ["DEFULT_PINECONE_ENVIRONMENT"]
+environment = os.environ["DEFAULT_PINECONE_ENVIRONMENT"]
 dimension = int(os.environ["EMBEDDING_DIMENSION"])
 metric = os.environ["DEFAULT_PINECONE_METRIC"]
 

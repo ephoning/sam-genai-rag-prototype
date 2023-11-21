@@ -1,4 +1,5 @@
 from langchain.vectorstores import Pinecone
+from langchain.docstore.document import Document
 import logging
 import pinecone
 import time
@@ -56,17 +57,24 @@ def populate_pinecone_index(docs, bedrock_embeddings, index_name, verbose=False)
     if not index_name:
         index_name = default_pinecone_index_name
     
+    vectorstore = retrieve_pinecone_vectorstore(bedrock_embeddings=bedrock_embeddings)
+    
     logger.info(f"add docs and their embeddings to pincone index using '{bedrock_embeddings}'/'{index_name}'")
     if len(docs) > max_docs:
         logger.info(f"Truncating docs from {len(docs)} to {max_docs} to avoid AWS Lambda timeout")
         docs = docs[:max_docs]
     docs_sections = list(split_list(docs, max_docs_batch_length))
     for idx, docs_section in enumerate(docs_sections):
+        logger.info(f"doc_section length: {len(docs_section)}")
+        logger.info(f"doc_section is of type '{type(docs_section)}'")
+        # filter out non-Document elements
+        docs_section = [ds for ds in docs_section if type(ds) == Document]
+        logger.info(f"doc_section length after type check: {len(docs_section)}")
         logger.info(f"adding docs batch {idx}")
         try:
-            docsearch = Pinecone.from_documents(documents=docs_section, embedding=bedrock_embeddings, index_name=index_name)
+            vectorstore.add_documents(documents=docs_section)
         except Exception as e:
-            logger.error(f"Failed to insert docs batch {idx} into Pinecone index")
+            logger.error(f"Failed to add docs batch {idx} into Pinecone index due to {e}")
     
     if verbose:
         try:
@@ -74,7 +82,6 @@ def populate_pinecone_index(docs, bedrock_embeddings, index_name, verbose=False)
             index.describe_index_stats()
         except:
             logger.error("Failed to describe Pinecone index stats")
-
 
 
 
