@@ -19,8 +19,8 @@ conv_qa = conv_qa_from_langchain_and_vectorstore_v2(langchain_client, vectorstor
 qa_handlers = {
     ("conversation", True): lambda q: query_conv(conv_qa, q),
     ("conversation", False): lambda q: query_conv(conv_qa, q),
-    ("single shot", True): lambda q: query_qa(qa_with_sources, q),
-    ("single shot", True): lambda q: query_qa(qa, q)
+    ("single_shot", True): lambda q: query_qa(qa_with_sources, q),
+    ("single_shot", False): lambda q: query_qa(qa, q)
 }
 
 

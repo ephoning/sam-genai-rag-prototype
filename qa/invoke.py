@@ -39,7 +39,7 @@ def lambda_handler(event, context):
     if not query:
         response = dict(message="Please provide a query in yuor request payload")
     else:
-        mode = event.get("mode", "conversation"). # options: ["conversation", "single shot"]
+        mode = event.get("mode", "conversation") # options: ["conversation", "single shot"]
         reset_conversation = event.get("reset_conversation")
         reset_conversation = True if reset_conversation in ["True", "true", "T", "t"] else False
         show_sources = event.get("show_sources")
