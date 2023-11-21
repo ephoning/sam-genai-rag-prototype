@@ -23,8 +23,7 @@ from constants import *
 
 
 default_embeddings_model_id = os.environ["DEFAULT_EMBEDDINGS_MODEL_ID"]
-default_model_id = os.environ["DEFAULT_MODL_ID"]
-default_inference_modifier = os.environ["DEFAULT_INFERENCE_MODIFIER"]
+default_model_id = os.environ["DEFAULT_MODEL_ID"]
 
 
 def get_bedrock_client():
@@ -38,7 +37,8 @@ def get_langchain_client(bedrock_client, model_id=None, inference_modifier=None)
     if not model_id:
         model_id = default_model_id
     if not inference_modifier:
-        inference_modifier = default_inference_modifier        
+        inference_modifier = DEFAULT_INFERENCE_MODIFIER
+        
     lc_client = Bedrock(
         model_id=model_id,
         client=bedrock_client,
@@ -50,6 +50,7 @@ def get_langchain_client(bedrock_client, model_id=None, inference_modifier=None)
 def get_embeddings_client(bedrock_client, model_id=None):
     if not model_id:
         model_id = default_embeddings_model_id
+        
     embeddings_client = BedrockEmbeddings(model_id=model_id, client=bedrock_client)
     return embeddings_client
 
@@ -88,7 +89,7 @@ def compose_body(model_id, prompt=None, params=None):
         
 def invoke_model(bedrock_client, model_id=None, prompt=None, params=None):
     if not model_id:
-        model_id = DEFAULT_MODEL_ID
+        model_id = default_model_id
 
     body = compose_body(model_id, prompt, params)
     accept = 'application/json'
@@ -114,13 +115,14 @@ def invoke_model(bedrock_client, model_id=None, prompt=None, params=None):
 def invoke_model_langchain(lc_client, prompt=None, params=None):
     if not prompt:
         prompt = compose_prompt(lc_client.model_id, params)    
+        
     response = lc_client(prompt)
     return response
 
             
 def invoke_model_stream(bedrock_client, model_id=None, prompt=None, params=None):
     if not model_id:
-        model_id = DEFAULT_MODEL_ID
+        model_id = default_model_id
 
     body = compose_body(model_id, prompt, params)
     accept = 'application/json'

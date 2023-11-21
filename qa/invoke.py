@@ -7,6 +7,8 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+trues = ["True", "true", "T", "t"]
+
 
 def lambda_handler(event, context):
     """Sample pure Lambda function
@@ -29,24 +31,23 @@ def lambda_handler(event, context):
 
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
-    log_info += "=== full event details: ===\n"
+    log_info = "=== full event details: ===\n"
     log_info += f"{event}\n"
     logger.info(log_info)
-    
     
     query = event.get("query")
     
     if not query:
-        response = dict(message="Please provide a query in yuor request payload")
+        response = dict(message="Please provide a query in your request payload")
     else:
         mode = event.get("mode", "conversation") # options: ["conversation", "single shot"]
         reset_conversation = event.get("reset_conversation")
-        reset_conversation = True if reset_conversation in ["True", "true", "T", "t"] else False
+        reset_conversation = True if reset_conversation in trues else False
         show_sources = event.get("show_sources")
-        show_sources = True if show_sources in ["True", "true", "T", "t"] else False
+        show_sources = True if show_sources in trues else False
         session_id = event.get("session_id", "public")
     
-        response = handle_query(dict(session_id=session_id, mode=mode, query=query, reset_conversation=reset_conversation))
+        response = handle_query(dict(session_id=session_id, mode=mode, query=query, show_sources=show_sources, reset_conversation=reset_conversation))
 
     return {
         "statusCode": 200,

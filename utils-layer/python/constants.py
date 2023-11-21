@@ -1,6 +1,8 @@
 import json
 import os
 
+from langchain.prompts import PromptTemplate
+
 
 ANTHROPIC_INSTANT = 'anthropic.claude-instant-v1'
 TITAN_LARGE = 'amazon.titan-tg1-large'

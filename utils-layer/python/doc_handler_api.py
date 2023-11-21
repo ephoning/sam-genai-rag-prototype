@@ -17,6 +17,7 @@ local_temp_storage_root = '/tmp'
 bedrock_client = None
 embeddings_client = None
 
+
 document_loader_constructors = {
     "pdf": lambda file_path: PyPDFLoader(file_path)
 }

@@ -2,8 +2,8 @@ from typing import Any, Dict
 
 from bedrock_api import get_bedrock_client, get_langchain_client, get_embeddings_client, get_conversation_memory
 from qa_api import qa_from_langchain_and_vectorstore, conv_qa_from_langchain_and_vectorstore_v2
-from qa_api import query_qa
-fron vector_db_api import retrieve_pinecone_vectorstore
+from qa_api import query_qa, query_conv, reset_conv
+from vector_db_api import retrieve_pinecone_vectorstore
 
 
 bedrock_client = get_bedrock_client()
@@ -36,8 +36,9 @@ def handle_query(input: Dict[str, Any]) -> Dict[str, Any]:
     
     qa_handler = qa_handlers[(mode, show_sources)]
     result = qa_handler(query)
+    
     if type(result) == str:
-        return dict(answer=result)
+        return dict(result=result)
     else:
         return result
 

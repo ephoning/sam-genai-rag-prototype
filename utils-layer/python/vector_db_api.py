@@ -10,17 +10,23 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+default_pinecone_api_key = os.environ["DEFAULT_PINECONE_API_KEY"]
+default_pinecone_environment = os.environ["DEFAULT_PINECONE_ENVIRONMENT"]
+default_pinecone_index_name = os.environ["DEFAULT_PINECONE_INDEX_NAME"]
+
+
 # limit the docs counts to try and avoid the Lambda timeing out
 max_docs = 300 
 # insert at most this many docs at one time in 'populate_pinecone_index'
 # see also: https://docs.pinecone.io/reference/upsert
 max_docs_batch_length = 100 
 
+
 def create_pinecone_index(index_name: str, api_key: str, environment: str, dimension: int, metric='dotproduct', verbose=False) -> None:
     if not environment:
-        environment = DEFAULT_PINECONE_ENVIRONMENT
+        environment = default_pinecone_environment
     if not index_name:
-        index_name = DEFAULT_PINECONE_INDEX_NAME
+        index_name = default_pinecone_index_name
         
     pinecone.init(api_key=api_key, environment=environment)
     logger.info("Pinecone initialized")
@@ -48,7 +54,7 @@ def populate_pinecone_index(docs, bedrock_embeddings, index_name, verbose=False)
     for now: limit this to at most 'max_docs' insertions
     """
     if not index_name:
-        index_name = DEFAULT_PINECONE_INDEX_NAME
+        index_name = default_pinecone_index_name
     
     logger.info(f"add docs and their embeddings to pincone index using '{bedrock_embeddings}'/'{index_name}'")
     if len(docs) > max_docs:
@@ -72,16 +78,16 @@ def populate_pinecone_index(docs, bedrock_embeddings, index_name, verbose=False)
 
 
 
-def retrieve_pinecone_vectorstore(bedrock_embeddings, index_name, api_key, environment, text_field='text') -> Any:
+def retrieve_pinecone_vectorstore(bedrock_embeddings, index_name=None, api_key=None, environment=None, text_field='text') -> Any:
     """
     register/connect Pinecone index to langchain
     """
     if not api_key:
-        api_key = DEFAULT_PINECONE_API_KEY
+        api_key = default_pinecone_api_key
     if not environment:
-        environment = DEFAULT_PINECONE_ENVIRONMENT
+        environment = default_pinecone_environment
     if not index_name:
-        index_name = DEFAULT_PINECONE_INDEX_NAME
+        index_name = default_pinecone_index_name
         
     pinecone.init(api_key=api_key, environment=environment)
     index = pinecone.Index(index_name)
