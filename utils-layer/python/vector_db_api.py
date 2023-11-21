@@ -16,8 +16,8 @@ default_pinecone_environment = os.environ["DEFAULT_PINECONE_ENVIRONMENT"]
 default_pinecone_index_name = os.environ["DEFAULT_PINECONE_INDEX_NAME"]
 
 
-# limit the docs counts to try and avoid the Lambda timeing out
-max_docs = 300 
+# limit the docs counts to try and avoid the Lambda potentially timing out?!?
+max_docs = 1000 
 # insert at most this many docs at one time in 'populate_pinecone_index'
 # see also: https://docs.pinecone.io/reference/upsert
 max_docs_batch_length = 100 
@@ -61,18 +61,14 @@ def populate_pinecone_index(docs, bedrock_embeddings, index_name, verbose=False)
     
     logger.info(f"add docs and their embeddings to pincone index using '{bedrock_embeddings}'/'{index_name}'")
     if len(docs) > max_docs:
-        logger.info(f"Truncating docs from {len(docs)} to {max_docs} to avoid AWS Lambda timeout")
+        logger.info(f"Truncating docs from {len(docs)} to {max_docs} to avoid potential AWS Lambda timeout")
         docs = docs[:max_docs]
-    docs_sections = list(split_list(docs, max_docs_batch_length))
-    for idx, docs_section in enumerate(docs_sections):
-        logger.info(f"doc_section length: {len(docs_section)}")
-        logger.info(f"doc_section is of type '{type(docs_section)}'")
-        # filter out non-Document elements
-        docs_section = [ds for ds in docs_section if type(ds) == Document]
-        logger.info(f"doc_section length after type check: {len(docs_section)}")
+    docs_batches = list(split_list(docs, max_docs_batch_length))
+    for idx, docs_batch in enumerate(docs_batches):
+        logger.info(f"docs batch length: {len(docs_batch)}")
         logger.info(f"adding docs batch {idx}")
         try:
-            vectorstore.add_documents(documents=docs_section)
+            vectorstore.add_documents(documents=docs_batch)
         except Exception as e:
             logger.error(f"Failed to add docs batch {idx} into Pinecone index due to {e}")
     
