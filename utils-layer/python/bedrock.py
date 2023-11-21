@@ -12,6 +12,8 @@ from botocore.config import Config
 
 print(f">>> boto3 version: {boto3.__version__} / botocore version: {botocore.__version__} <<<")
 
+max_attempts = 3
+
 def get_bedrock_client(
     assumed_role: Optional[str] = None,
     region: Optional[str] = None,
@@ -47,7 +49,7 @@ def get_bedrock_client(
     retry_config = Config(
         region_name=target_region,
         retries={
-            "max_attempts": 10,
+            "max_attempts": max_attempts,
             "mode": "standard",
         },
     )

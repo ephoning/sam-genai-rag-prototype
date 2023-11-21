@@ -59,7 +59,7 @@ def handle_document(bucket, key):
 
     index_name = os.environ['PINECONE_INDEX_NAME']
     local_file_path = f"{local_temp_storage_root}/{key}"
-    metadata = dict(name=key)
+    metadata = dict(source=key)  # note: 'source' matches what is expected when running inference with source attribution
     
     try:
         download_object(bucket, key, local_file_path)
