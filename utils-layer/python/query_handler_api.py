@@ -36,11 +36,6 @@ def handle_query(input: Dict[str, Any]) -> Dict[str, Any]:
     
     qa_handler = qa_handlers[(mode, show_sources)]
     result = qa_handler(query)
-    
-    if type(result) == str:
-        return dict(result=result)
-    else:
-        return result
-
+    return result
 
     

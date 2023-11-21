@@ -1,5 +1,6 @@
+import logging
 import os
-from typing import Any
+from typing import Dict, Any
 
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_PROMPT
@@ -10,6 +11,10 @@ from langchain.chains import RetrievalQAWithSourcesChain
 from constants import *
 
 default_max_token_limit = os.environ["DEFAULT_MAX_TOKEN_LIMIT"]
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 def qa_from_langchain_and_vectorstore_v1(langchain_client, vectorstore, with_sources=True) -> Any:
@@ -80,16 +85,30 @@ def qa_from_langchain_and_vectorstore(langchain_client, vectorstore, with_source
     return qa_from_langchain_and_vectorstore_v1(langchain_client, vectorstore, with_sources)
 
 
-def query_qa(qa, query) -> Any:
+def query_qa(qa, query) -> Dict[str, Any]:
     if type(qa) == RetrievalQAWithSourcesChain:
         result = qa(query)
+        logger.info(f"result with sources: '{result}'")
+        d = dict()
+        d['question'] = result['question']
+        d['answer'] = result['answer']
+        source_documents = list()
+        for doc in result['source_documents']:
+            source_documents.append({
+                'page_content': doc.page_content,
+                'source': doc.metadata['source']
+            })
+        d['source_documents'] = source_documents
+        result = d
     else:
         result = qa.run(query)
+        result = dict(answer=result)
     return result
 
 
-def query_conv(conv_qa, query) -> Any:
+def query_conv(conv_qa, query) -> Dict[str, Any]:
     result = conv_qa.run({'question': query })
+    result = dict(answer=result)
     return result
 
 

@@ -47,8 +47,7 @@ def lambda_handler(event, context):
         show_sources = True if show_sources in trues else False
         session_id = event.get("session_id", "public")
     
-        q_result = handle_query(dict(session_id=session_id, mode=mode, query=query, show_sources=show_sources, reset_conversation=reset_conversation))
-        response = dict(message=str(q_result))
+        response = handle_query(dict(session_id=session_id, mode=mode, query=query, show_sources=show_sources, reset_conversation=reset_conversation))
 
     return {
         "statusCode": 200,
