@@ -54,11 +54,20 @@ def create_doc_chunks(local_file_path: str, metadata: Dict[str, Any], chunk_size
         return doc_chunks
 
 
+def sanitize_key(key):
+    "sanitize key name to try and avoid naming issues on the /tmp file system"
+    k = key.replace(' ', '')
+    k = k.replace('+', '')
+    k = k.replace('-', '')
+    return k
+    
+    
 def handle_document(bucket, key):
     _, embeddings_client = get_clients()
 
     index_name = os.environ['DEFAULT_PINECONE_INDEX_NAME']
-    local_file_path = f"{local_temp_storage_root}/{key}"
+    sanitized_key = sanitize_key(key)
+    local_file_path = f"{local_temp_storage_root}/{sanitized_key}"
     metadata = dict(source=key)  # note: 'source' matches what is expected when running inference with source attribution
     
     try:
