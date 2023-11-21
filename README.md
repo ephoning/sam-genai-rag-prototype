@@ -40,6 +40,7 @@ $ pip install langchain -t .
 $ pip install PyPDF2 -t .      # maybe remove?!?
 $ pip install pinecone-client -t . 
 $ pip install pypdf -t .
+$ pip install anthropic -t .
 ```
 
 ### utils-layer
