@@ -164,7 +164,7 @@ Build your application with the `sam build --use-container` command.
 sam-genai-rag-prototype$ sam build --use-container
 ```
 
-The SAM CLI installs dependencies defined in `hello_world/requirements.txt`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+The SAM CLI installs dependencies defined in `sam-genai-rag-prototype/requirements.txt`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
 
 Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
 
@@ -185,11 +185,14 @@ The SAM CLI reads the application template to determine the API's routes and the
 
 ```yaml
       Events:
-        HelloWorld:
+        QA:
           Type: Api
           Properties:
-            Path: /hello
+            Path: /qa
             Method: get
+            RestApiId: !Ref AppApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 ```
 
 ## Add a resource to your application
@@ -202,7 +205,7 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
 ```bash
-sam-genai-rag-prototype$ sam logs -n HelloWorldFunction --stack-name "sam-genai-rag-prototype" --tail
+sam-genai-rag-prototype$ sam logs -n QAFunction --stack-name "sam-genai-rag-prototype" --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
