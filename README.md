@@ -53,7 +53,7 @@ utils-layer/python
 ```
 
 -------------------
-Curerntly, IAM related configuration and/or resource creation is accomplished using the AWS' web UI.
+Currently, IAM related configuration and/or resource creation is accomplished using the AWS' web UI.
 
 * Allow the 'data ingest' lambda to invoke models per:
 ```
@@ -78,6 +78,47 @@ Curerntly, IAM related configuration and/or resource creation is accomplished us
 ```
 * Repeat the above IAM UI interaction for the QAFunction lambda
 
+-------------------
+# Authenticaion and athorization
+
+Adopt the approach as outlined in
+* https://scriptingis.life/Cognito-AWS-SAM/
+* https://github.com/scriptingislife/sam-cognito-example
+
+## steps (from: https://scriptingis.life/Cognito-AWS-SAM/#authenticated-requests)
+### Build / deploy
+```bash
+$ export COGNITO_USER_EMAIL='me@example.com'
+
+$ sam build && sam deploy --parameter-overrides CognitoUserEmail=$COGNITO_USER_EMAIL
+```
+Make note of all of the outputs.
+
+### First time sign-in
+Check the inbox of $COGNITO_USER_EMAIL for a temporary password. This command will sign in for the first time.
+```bash
+$ aws cognito-idp initiate-auth \
+   --auth-flow USER_PASSWORD_AUTH \
+   --auth-parameters "USERNAME=$COGNITO_USER_EMAIL,PASSWORD=<TEMP-PASS>" \
+   --client-id <CLIENT-ID> \
+   --query "Session" \
+   --output text
+```
+Use the output in the next command. This command will set a new password and provide the final token.
+```bash
+aws cognito-idp admin-respond-to-auth-challenge \
+   --user-pool-id <USER-POOL> \
+   --client-id <CLIENT-ID> \
+   --challenge-responses "USERNAME=$COGNITO_USER_EMAIL,NEW_PASSWORD=<NEW-PASS>" \
+   --challenge-name NEW_PASSWORD_REQUIRED \
+   --session <SESSION>
+```
+Several tokens are provided. The ID Token is the one that will be sent with requests.
+### Authneticated requests
+The provided token can be sent in the *Authorization* header of each request. For example:
+```
+curl -H "Authorization: Bearer <ID-TOKEN>" https://<API-ID>.execute-api.us-east-1.amazonaws.com/api/qa/ <TODO>
+```
 
 -------------------
 # Custom fixes

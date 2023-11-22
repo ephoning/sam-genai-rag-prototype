@@ -21,6 +21,17 @@ Globals:
         EMBEDDING_DIMENSION: 1536   # embedding vector dimensionality; should be based on a sample text chunk embedding...
         DEFAULT_MAX_TOKEN_LIMIT: 1000
 
+
+Parameters:
+  APIStageName:
+    Default: api
+    Description: StageName of API Gateway deployment
+    Type: String
+  CognitoUserEmail:
+    Description: Email address of the created user
+    Type: String
+
+
 Resources:
             
   Boto3Layer:
@@ -112,6 +123,7 @@ Resources:
           Properties:
             Path: /bootstrap
             Method: get
+            RestApiId: !Ref AppApi
 
   DataIngestFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -146,6 +158,50 @@ Resources:
           Properties:
             Path: /qa
             Method: get
+            RestApiId: !Ref AppApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  AppApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: GenAIPrototypeAPI
+      StageName: !Ref APIStageName
+      Cors: "'*'"
+      Auth:
+        Authorizers:
+            CognitoAuthorizer:
+              UserPoolArn: !GetAtt "UserPool.Arn"
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: MyUserPool
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+  UserPoolUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      DesiredDeliveryMediums:
+        - EMAIL
+      Username: !Ref CognitoUserEmail
+      UserPoolId: !Ref UserPool
+
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -153,7 +209,7 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   QAApi:
     Description: "API Gateway endpoint URL for Prod stage for Q&A function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/qa/"
+    Value: !Sub "https://${AppApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/qa/"
   QAFunction:
     Description: "Q&A Lambda Function ARN"
     Value: !GetAtt QAFunction.Arn
@@ -174,3 +230,11 @@ Outputs:
   DataIngestFunctionIamRole:
     Description: "Implicit IAM Role created for Data Ingest function"
     Value: !GetAtt DataIngestFunctionRole.Arn
+
+  UserPoolId:
+    Description: "ID of the Cognito User Pool"
+    Value: !Ref UserPool
+  CognitoClientId:
+    Description: "ID of the Cognito User Pool Client"
+    Value: !Ref UserPoolClient
+    
