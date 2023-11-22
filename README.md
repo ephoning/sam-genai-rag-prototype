@@ -117,7 +117,9 @@ Several tokens are provided. The ID Token is the one that will be sent with requ
 ### Authneticated requests
 The provided token can be sent in the *Authorization* header of each request. For example:
 ```
-curl -H "Authorization: Bearer <ID-TOKEN>" https://<API-ID>.execute-api.us-east-1.amazonaws.com/api/qa/ <TODO>
+curl -H "Authorization: Bearer <ID-TOKEN>" https://<API-ID>.execute-api.us-east-1.amazonaws.com/api/qa/ \
+   -H 'content-type: application/json' \
+   -d '{"mode": "single_short", "query": "what is Agda?", "show_sources": "True"}'
 ```
 
 -------------------
