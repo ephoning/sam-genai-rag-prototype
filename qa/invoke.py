@@ -35,17 +35,21 @@ def lambda_handler(event, context):
     log_info += f"{event}\n"
     logger.info(log_info)
     
-    query = event.get("query")
+    query = event.get("query", event["queryStringParameters"].get("query"))
     
     if not query:
         response = dict(message="Please provide a query in your request payload")
     else:
-        mode = event.get("mode", "conversation") # options: ["conversation", "single shot"]
-        reset_conversation = event.get("reset_conversation")
+        mode = event.get("mode", event["queryStringParameters"].get("mode", "conversation"))  # options: ["conversation", "single shot"]
+
+        reset_conversation = event.get("reset_conversation", event["queryStringParameters"].get("reset_conversation"))
         reset_conversation = True if reset_conversation in trues else False
-        show_sources = event.get("show_sources")
+        
+        show_sources = event.get("show_sources", event["queryStringParameters"].get("show_sources"))
         show_sources = True if show_sources in trues else False
-        session_id = event.get("session_id", "public")
+        
+        # TEMP
+        session_id = event.get("session_id", event["queryStringParameters"].get("session_id"))
     
         response = handle_query(dict(session_id=session_id, mode=mode, query=query, show_sources=show_sources, reset_conversation=reset_conversation))
 
