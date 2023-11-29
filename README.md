@@ -370,7 +370,7 @@ in 'pretty printed' layout (replacing the actual long token values with just '\<
 
 Note the value of the leaf at path 'requestContext->authorizer->claims->cognito:username' and 'requestContext->authorizer->claims->sub' have value "424fbb17-413d-4544-b8cf-544e0f0b4439", which matches the user name of the user in 'MyUserPool' in Amazon Cognito.
 
-As per [](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-the-id-token.html), this uniquely identifies the user and will serve as our 'session id'. (Note that this means that we only allow a single session per user)
+As per the [Cognito developerguide](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-the-id-token.html), this uniquely identifies the user and will serve as our 'session id'. (Note that this means that we only allow a single session per user)
 
 
 We implement 'session' management as follows:
