@@ -87,8 +87,8 @@ CONV_QA_CACHE = dict()
 def fetch_conv_qa(session_id,
                   langchain_client, 
                   vectorstore,
-                  chain_type=None, 
-                  max_token_limit=None, 
+                  chain_type='stuff', 
+                  max_token_limit=default_max_token_limit,
                   reset_conversation=False,
                   verbose=False) -> Any:
     """
