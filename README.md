@@ -101,7 +101,7 @@ Currently, IAM related configuration and/or resource creation is accomplished us
 ```
 
 -------------------
-## Authenticaion and authorization
+## Authentication and authorization
 
 Adopt the approach as outlined in
 * https://scriptingis.life/Cognito-AWS-SAM/
@@ -137,8 +137,9 @@ aws cognito-idp admin-respond-to-auth-challenge \
    --session <SESSION> \
    --region us-east-1
 ```
+
 Several tokens are provided. The ID Token is the one that will be sent with requests.
----
+
 Now that we have set a new password, subsequent authentical flow / session establishment looks like the following:
 
 ```bash
@@ -219,7 +220,7 @@ Below an example log message from the QAFunction:
 'domainName': 'n2kqilxd7g.execute-api.us-east-1.amazonaws.com', 'apiId': 'n2kqilxd7g'}, 'body': None, 'isBase64Encoded': False}
 ```
 
-in 'pretty printed' layout (replacing the actual long token values with just '<TOKEN VALUE>'):
+in 'pretty printed' layout (replacing the actual long token values with just '\<TOKEN VALUE\>'):
 
 ```
 {
@@ -368,19 +369,20 @@ in 'pretty printed' layout (replacing the actual long token values with just '<T
 ```
 
 Note the value of the leaf at path 'requestContext->authorizer->claims->cognito:username' and 'requestContext->authorizer->claims->sub' have value "424fbb17-413d-4544-b8cf-544e0f0b4439", which matches the user name of the user in 'MyUserPool' in Amazon Cognito.
+
 As per [](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-the-id-token.html), this uniquely identifies the user and will serve as our 'session id'. (Note that this means that we only allow a single session per user)
 
 
 We implement 'session' management as follows:
 * in the QAfunction python file (qa/invoke.py), pass the value of event['requestContext->authorizer->claims->sub'] as the 'session_id' to 'handle_query'
-* in utils_layer/query_handler_api, pass session id on to qa handlers
+* in utils_layer/query_handler_api,.py pass session id on to qa handlers
 * conv qa handler implementation(s) can use session id to keep an unique ConversationalRetrievalChain per session, as each will need its own conversation_memory instance.
 * resetting a conversation implies reinstatiatiing a conversation_memory instance are recreating the session's ConversationalRetrievalChain instance
 
 -------------------
 ## Custom fixes
 * in an attempt to perform Pinecone embedding inserts synchronously (to avoid threadpool spinup that is not allowed in AWS Lambda) the following mod was made:
-** in file libs-layer/python/langchain/vectorstores/pinecone.py:   lines 139-160: async_req=False, and no asyn results collection
+in file libs-layer/python/langchain/vectorstores/pinecone.py:   lines 139-160: async_req=False, and no asyn results collection
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
