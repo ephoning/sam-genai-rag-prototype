@@ -167,7 +167,7 @@ $ export COGNITO_ID_TOKEN="eyJraWQiOiJGa3FyRldNQlF5OHhiQzZXODByeHdNYTVXRDRyUFFIM
 We can now use the 'id token' to access the lambdas as exposed by the API gateway as in the following examples:
 
 ```bash
-$ curl -H "Authorization: Bearer $COGNITO_ID_TOKEN" https://n2kqilxd7g.execute-api.us-east-1.amazonaws.com/api/qa
+$ curl -H "Authorization: Bearer $COGNITO_ID_TOKEN" https://n2kqilxd7g.execute-api.us-east-1.amazonaws.com/Prod/qa
 
 {"message": "Please provide a query in your request payload"}
 ```
@@ -175,7 +175,7 @@ $ curl -H "Authorization: Bearer $COGNITO_ID_TOKEN" https://n2kqilxd7g.execute-a
 ```bash
 $ curl \
   -H "Authorization: Bearer $COGNITO_ID_TOKEN" \
-  "https://n2kqilxd7g.execute-api.us-east-1.amazonaws.com/api/qa?mode=single_shot&show_sources=True&query=what+is+Agda"
+  "https://n2kqilxd7g.execute-api.us-east-1.amazonaws.com/Prod/qa?mode=single_shot&show_sources=True&query=what+is+Agda"
 
 {"question": "what is Agda", "answer": " Agda is a proof assistant created by Ulf Norell at Chalmers University of Technology. It is designed for programming and verifying functional programs, with an emphasis on inductive and recursively defined data types. Proofs in Agda are written as part of the program itself, using dependent types.\n\n", "source_documents": [{"page_content": "Verified Functional\nProgramming in Agda", "source": "verified-functional-programming-in-agda.pdf"}, {"page_content": "Agda User Manual, Release 2.6.5\n4 Chapter 1. Overview", "source": "agda-readthedocs-io-en-latest.pdf"}, {"page_content": "Agda User Manual, Release 2.6.5\n298 Bibliography", "source": "agda-readthedocs-io-en-latest.pdf"}, {"page_content": "Agda User Manual, Release 2.6.5\nCONTENTS 1", "source": "agda-readthedocs-io-en-latest.pdf"}]}
 ```
