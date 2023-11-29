@@ -183,7 +183,7 @@ $ curl \
 
 ## Creating new users / accounts in AWS Cognito
 
-<TODO>
+\<TODO\>
 
 -------------------
 ## Session mamagement implementation
