@@ -8,6 +8,8 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import RetrievalQA
 from langchain.chains import RetrievalQAWithSourcesChain
 
+from bedrock_api import get_conversation_memory
+
 from constants import *
 
 default_max_token_limit = os.environ["DEFAULT_MAX_TOKEN_LIMIT"]
@@ -60,8 +62,9 @@ def qa_from_langchain_and_vectorstore_v2(langchain_client, vectorstore, with_sou
     return qa
 
 
-def conv_qa_from_langchain_and_vectorstore_v2(langchain_client, vectorstore, conversation_memory, 
-                                              chain_type='stuff', max_token_limit=default_max_token_limit, verbose=False) -> Any:
+def conv_qa_from_langchain_and_vectorstore(langchain_client, vectorstore, conversation_memory,
+                                           chain_type='stuff', max_token_limit=default_max_token_limit, 
+                                           verbose=False) -> Any:
     """
     contstruct conversational Q&A instance
     """
@@ -77,6 +80,37 @@ def conv_qa_from_langchain_and_vectorstore_v2(langchain_client, vectorstore, con
     )
     return conv_qa
     
+
+# conv_qa cache keyed on 'session_id'
+CONV_QA_CACHE = dict()
+
+def fetch_conv_qa(session_id,
+                  langchain_client, 
+                  vectorstore,
+                  chain_type=None, 
+                  max_token_limit=None, 
+                  reset_conversation=False,
+                  verbose=False) -> Any:
+    """
+    either construct or fetch a qa_conv instance from cache
+    each conv_qa has its own 'conversation memory' instance, thus allowing
+    for session-specific conversations
+    use 'reset_conversation=True' to force a new instance for the specified session id
+    """
+    global CONV_QA_CACHE
+    
+    conv_qa = None if reset_conversation else CONV_QA_CACHE.get(session_id)
+    if not conv_qa:
+        conversation_memory = get_conversation_memory()
+        conv_qa = conv_qa_from_langchain_and_vectorstore(langchain_client, 
+                                                         vectorstore, 
+                                                         conversation_memory,
+                                                         chain_type,
+                                                         max_token_limit,
+                                                         verbose)
+        CONV_QA_CACHE[session_id] = conv_qa
+    return conv_qa
+
 
 def qa_from_langchain_and_vectorstore(langchain_client, vectorstore, with_sources=True) -> Any:
     """

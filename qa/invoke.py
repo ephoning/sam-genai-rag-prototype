@@ -48,9 +48,12 @@ def lambda_handler(event, context):
         show_sources = event.get("show_sources", event["queryStringParameters"].get("show_sources"))
         show_sources = True if show_sources in trues else False
         
-        # TEMP
-        session_id = event.get("session_id", event["queryStringParameters"].get("session_id"))
-    
+        try:
+            session_id = event['requestContext']['authorizer']['claims']['sub'] 
+        except:
+            logger.warn("Could not get 'session id' from event => using 'anonymous' session")
+            session_id = 'anonymous'
+
         response = handle_query(dict(session_id=session_id, mode=mode, query=query, show_sources=show_sources, reset_conversation=reset_conversation))
 
     return {
