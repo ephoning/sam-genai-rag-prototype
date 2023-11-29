@@ -374,15 +374,15 @@ As per [](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cogni
 
 
 We implement 'session' management as follows:
-* in the QAfunction python file (qa/invoke.py), pass the value of event['requestContext->authorizer->claims->sub'] as the 'session_id' to 'handle_query'
-* in utils_layer/query_handler_api,.py pass session id on to qa handlers
-* conv qa handler implementation(s) can use session id to keep an unique ConversationalRetrievalChain per session, as each will need its own conversation_memory instance.
-* resetting a conversation implies reinstatiatiing a conversation_memory instance are recreating the session's ConversationalRetrievalChain instance
+* in the QAfunction python file (**qa/invoke.py**), pass the value of event['requestContext->authorizer->claims->sub'] as the 'session_id' to 'handle_query'
+* in **utils_layer/query_handler_api.py**, pass session id on to qa handlers
+* conv qa handler implementation(s) can use session id to keep an unique **ConversationalRetrievalChain** per session, as each will need its own conversation_memory instance.
+* resetting a conversation implies reinstatiatiing a conversation_memory instance are recreating the session's **ConversationalRetrievalChain** instance
 
 -------------------
 ## Custom fixes
 * in an attempt to perform Pinecone embedding inserts synchronously (to avoid threadpool spinup that is not allowed in AWS Lambda) the following mod was made:
-in file libs-layer/python/langchain/vectorstores/pinecone.py:   lines 139-160: async_req=False, and no asyn results collection
+in file **libs-layer/python/langchain/vectorstores/pinecone.py**:   lines 139-160: async_req=False, and no async results collection
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
