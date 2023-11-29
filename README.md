@@ -180,6 +180,24 @@ $ curl \
 {"question": "what is Agda", "answer": " Agda is a proof assistant created by Ulf Norell at Chalmers University of Technology. It is designed for programming and verifying functional programs, with an emphasis on inductive and recursively defined data types. Proofs in Agda are written as part of the program itself, using dependent types.\n\n", "source_documents": [{"page_content": "Verified Functional\nProgramming in Agda", "source": "verified-functional-programming-in-agda.pdf"}, {"page_content": "Agda User Manual, Release 2.6.5\n4 Chapter 1. Overview", "source": "agda-readthedocs-io-en-latest.pdf"}, {"page_content": "Agda User Manual, Release 2.6.5\n298 Bibliography", "source": "agda-readthedocs-io-en-latest.pdf"}, {"page_content": "Agda User Manual, Release 2.6.5\nCONTENTS 1", "source": "agda-readthedocs-io-en-latest.pdf"}]}
 ```
 
+```bash
+$ curl \
+  -H "Authorization: Bearer $COGNITO_ID_TOKEN"  \
+  "https://n2kqilxd7g.execute-api.us-east-1.amazonaws.com/Prod/qa?mode=conversation&query=what+is+Agda"
+
+{"answer": " Agda is a dependently typed programming language based on intensional type theory. 
+             It is primarily aimed at developing verified software and formal proofs."}
+
+$ curl   -H "Authorization: Bearer $COGNITO_ID_TOKEN"  \
+"https://n2kqilxd7g.execute-api.us-east-1.amazonaws.com/Prod/qa?mode=conversation&query=please+elaborate"
+
+{"answer": " Based on the context provided, Agda is a functional programming language based on dependent types. 
+             It is designed to be helpful for formally verifying software by allowing programs to be written and reasoned about based on their types. 
+             The context references an Agda user manual and discusses how lambda abstraction is written in Agda using either Curry-style or with the \u03bb symbol, 
+             indicating it has lambda terms like other functional languages. 
+             However, I do not have enough information from the context provided to fully elaborate on Agda's features or capabilities."}
+```
+
 
 ## Creating new users / accounts in AWS Cognito
 
