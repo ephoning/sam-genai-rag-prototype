@@ -50,6 +50,7 @@ def lambda_handler(event, context):
         
         try:
             session_id = event['requestContext']['authorizer']['claims']['sub'] 
+            logger.info(f"Got session id: {session_id}")
         except:
             logger.warn("Could not get 'session id' from event => using 'anonymous' session")
             session_id = 'anonymous'

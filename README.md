@@ -183,8 +183,28 @@ $ curl \
 
 ## Creating new users / accounts in AWS Cognito
 
-\<TODO\>
+Using the aws CLI tool:
 
+```bash
+aws cognito-idp sign-up \
+    --region us-east-1 \
+    --client-id  $ COGNITO_CLIENT_ID\
+    --username <new user's email address> \
+    --password <new user's password>
+```
+
+Alternatively, a new user can be introduced via Amazon Cognito's web UI, navigating to 'Users' section in the appropriate User pool's page.
+
+Either the user can go through a workflow to "confirm" their email address, or the new user's confirmation status can be modfied through Amazon Cognito's web UI but navigating to the 'User pool', 
+selecting the new user's entry in the 'Users' list, selecting 'Edit User' and mark their email address as 'confirmed'
+
+## Troubleshooting hints
+
+* varifying the validity of a Cognito 'id token' can be done by navigating to the appropriate 'API Gateway' entry, selecting the 'Authorizers' view in the left marging, followed by selecting thr 'CognitoAuthorizer'.
+This in turn shows a 'Test authorizer', allowing the 'Token value' (Cognito IdToken) to be entered. (Note: make sure NOT to add enclosing double quote values). A successful test will result in a '200' result with 
+a 'Claims' section in JSON format, containing key information on the user's email address, token expiration date/time stamp, etc.
+ 
+ 
 -------------------
 ## Session mamagement implementation
 
