@@ -196,6 +196,43 @@ $ curl -H "Authorization: Bearer $COGNITO_ID_TOKEN" https://14cuqlv650.execute-a
 {"message": "Please provide a query in your request payload"}
 ```
 
+-------------------
+## Creating new users / accounts in AWS Cognito
+
+Using the aws CLI tool:
+
+```bash
+aws cognito-idp sign-up \
+    --region us-east-1 \
+    --client-id  $ COGNITO_CLIENT_ID\
+    --username <new user's email address> \
+    --password <new user's password>
+```
+
+Alternatively, a new user can be introduced via Amazon Cognito's web UI, navigating to 'Users' section in the appropriate User pool's page.
+
+Either the user can go through a workflow to "confirm" their email address, or the new user's confirmation status can be modfied through Amazon Cognito's web UI but navigating to the 'User pool', 
+selecting the new user's entry in the 'Users' list, selecting 'Edit User' and mark their email address as 'confirmed'
+
+-------------------
+## Sample Pinecone vector DB initialization request
+
+Before the dataingest lambda can process arrival of PDF files in the landingzone S3 bucket, the Pincone vector DB needs to be initialized.
+Ths can be accomplished with the following request:
+
+```bash
+$ curl \
+  -H "Authorization: Bearer $COGNITO_ID_TOKEN" \
+  "https://14cuqlv650.execute-api.us-east-1.amazonaws.com/Prod/bootstrap"
+```
+
+Note that this needs to be done only once. Re-issuing this request will wipe existing contents in the DB and re-create the index.
+
+-------------------
+## Sample query/conversation requests
+
+Note that the .../qa endpoint supports both the GET and POST methods
+
 ```bash
 $ curl \
   -H "Authorization: Bearer $COGNITO_ID_TOKEN" \
@@ -243,23 +280,7 @@ and inductive-recursive definitions.\n\n", "source_documents": [{"page_content":
 Lambda abstraction is either written Curry-style", "source": "DependentTypesAtWork.pdf"}]}
   ```
 
-## Creating new users / accounts in AWS Cognito
-
-Using the aws CLI tool:
-
-```bash
-aws cognito-idp sign-up \
-    --region us-east-1 \
-    --client-id  $ COGNITO_CLIENT_ID\
-    --username <new user's email address> \
-    --password <new user's password>
-```
-
-Alternatively, a new user can be introduced via Amazon Cognito's web UI, navigating to 'Users' section in the appropriate User pool's page.
-
-Either the user can go through a workflow to "confirm" their email address, or the new user's confirmation status can be modfied through Amazon Cognito's web UI but navigating to the 'User pool', 
-selecting the new user's entry in the 'Users' list, selecting 'Edit User' and mark their email address as 'confirmed'
-
+-------------------
 ## Troubleshooting hints
 
 * varifying the validity of a Cognito 'id token' can be done by navigating to the appropriate 'API Gateway' entry, selecting the 'Authorizers' view in the left marging, followed by selecting thr 'CognitoAuthorizer'.
@@ -268,7 +289,7 @@ a 'Claims' section in JSON format, containing key information on the user's emai
  
  
 -------------------
-## Session mamagement implementation
+## Session management implementation
 
 Note that full event details as currently logged by our authenticated lambdas provide insight into what properties are potentially avaiable to base the concept of a 'convernsation session' on.
 Below an example log message from the QAFunction:
@@ -453,7 +474,6 @@ in 'pretty printed' layout (replacing the actual long token values with just '\<
 Note the value of the leaf at path 'requestContext->authorizer->claims->cognito:username' and 'requestContext->authorizer->claims->sub' have value "424fbb17-413d-4544-b8cf-544e0f0b4439", which matches the user name of the user in 'MyUserPool' in Amazon Cognito.
 
 As per the [Cognito developerguide](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-the-id-token.html), this uniquely identifies the user and will serve as our 'session id'. (Note that this means that we only allow a single session per user)
-
 
 We implement 'session' management as follows:
 * in the ***QAFunction*** python file (**qa/invoke.py**), pass the value of event['requestContext->authorizer->claims->sub'] as the 'session_id' to 'handle_query'
