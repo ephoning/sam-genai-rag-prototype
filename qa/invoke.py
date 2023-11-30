@@ -18,7 +18,7 @@ def get_params(event: Dict[str, Any]) -> Dict[str, Any]:
         params = event['queryStringParameters']
     
     if event['httpMethod'] == "POST":
-        params = event['body']
+        params =json.loads(event['body'])
         
     return params
     
