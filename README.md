@@ -131,11 +131,11 @@ Adopt the approach as outlined in
 
 ### First time sign-in
 
-Check the inbox of $COGNITO_USER_EMAIL for a temporary password (\<TEMP-PASS\>). This command will sign in for the first time.
+Check the inbox of $COGNITO_USER_EMAIL for a temporary password (\<TEMP-PWD\>). This command will sign in for the first time.
 ```bash
 $ export COGNITO_SESSION_ID=`aws cognito-idp initiate-auth \
    --auth-flow USER_PASSWORD_AUTH \
-   --auth-parameters "USERNAME=$COGNITO_USER_EMAIL,PASSWORD=<TEMP-PASS>" \
+   --auth-parameters "USERNAME=$COGNITO_USER_EMAIL,PASSWORD=<TEMP-PWD>" \
    --client-id $COGNITO_CLIENT_ID \
    --query "Session" \
    --output text \
@@ -146,7 +146,7 @@ Notice the use of the 'captured' ***session id*** in the next command. This comm
 aws cognito-idp admin-respond-to-auth-challenge \
    --user-pool-id $COGNITO_USER_POOL_ID \
    --client-id $COGNITO_CLIENT_ID \
-   --challenge-responses "USERNAME=$COGNITO_USER_EMAIL,NEW_PASSWORD=<NEW-PASS>" \
+   --challenge-responses "USERNAME=$COGNITO_USER_EMAIL,NEW_PASSWORD=<NEW-PWD>" \
    --challenge-name NEW_PASSWORD_REQUIRED \
    --session $COGNITO_SESSION_ID \
    --region us-east-1
@@ -159,7 +159,7 @@ Now that we have set a new password, subsequent authentical flow / session estab
 ```bash
 $ aws cognito-idp initiate-auth \
    --auth-flow USER_PASSWORD_AUTH \
-   --auth-parameters "USERNAME=$COGNITO_USER_EMAIL,PASSWORD=secret123" \
+   --auth-parameters "USERNAME=$COGNITO_USER_EMAIL,PASSWORD=<NEW-PWD>" \
    --client-id $COGNITO_CLIENT_ID \
    --output json \
    --region us-east-1
@@ -182,7 +182,7 @@ To facilitate easy capture/retention of the id token, you can use the script nam
 
 The script makes the aws cli call, parses the JSON output, and sets the ***COGNITO_ID_TOKEN*** environment variable.
 
-MAke sure the call this scripts as follows:
+Make sure the call this scripts as follows:
 ```bash
 $ . ./get_cognito_id_token.sh <user's email address> <user's password>
 ```
