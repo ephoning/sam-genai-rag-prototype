@@ -1,0 +1,63 @@
+Output from most recent 'sam deploy' execution.
+Use this to set the follpowing critical env vars:
+
+env var name                value of key
+---------------             ---------------------
+COGNITO_USER_POOL_ID.       UserPoolId
+
+COGNITO_CLIENT_ID           CognitoClientId
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Outputs                                                                                                                                                                                                                                          
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Key                 BootstrapApi                                                                                                                                                                                                                 
+Description         API Gateway endpoint URL for Prod stage for Bootstrap function ((re-)initialize Pinecone index)                                                                                                                              
+Value               https://14cuqlv650.execute-api.us-east-1.amazonaws.com/Prod/bootstrap/                                                                                                                                                       
+
+Key                 UserPoolId                                                                                                                                                                                                                   
+Description         ID of the Cognito User Pool                                                                                                                                                                                                  
+Value               us-east-1_cDz5VeW8N                                                                                                                                                                                                          
+
+Key                 CognitoClientId                                                                                                                                                                                                              
+Description         ID of the Cognito User Pool Client                                                                                                                                                                                           
+Value               4a25nfvp56gdc8u79orq7405a2                                                                                                                                                                                                   
+
+Key                 DataIngestFunction                                                                                                                                                                                                           
+Description         Data Ingest Lambda Function ARN                                                                                                                                                                                              
+Value               arn:aws:lambda:us-east-1:784947213393:function:sam-genai-rag-prototype-DataIngestFunction-KZGMv1nFFAZe                                                                                                                       
+
+Key                 LandingZoneBucketName                                                                                                                                                                                                        
+Description         name of S3 bucket used as a file landing zone                                                                                                                                                                                
+Value               sam-genai-rag-prototype-landingzonebucket-1vxzgtd6952ua                                                                                                                                                                      
+
+Key                 QAFunctionIamRole                                                                                                                                                                                                            
+Description         Implicit IAM Role created for Q&A function                                                                                                                                                                                   
+Value               arn:aws:iam::784947213393:role/sam-genai-rag-prototype-QAFunctionRole-t9UG3UTWc3MH                                                                                                                                           
+
+Key                 BootstrapFunctionIamRole                                                                                                                                                                                                     
+Description         Implicit IAM Role created for Bootstrap function                                                                                                                                                                             
+Value               arn:aws:iam::784947213393:role/sam-genai-rag-prototype-BootstrapFunctionRole-krtYMUldfgQ0                                                                                                                                    
+
+Key                 QAApi                                                                                                                                                                                                                        
+Description         API Gateway endpoint URL for Prod stage for Q&A function                                                                                                                                                                     
+Value               https://14cuqlv650.execute-api.us-east-1.amazonaws.com/Prod/qa/                                                                                                                                                              
+
+Key                 BootstrapFunction                                                                                                                                                                                                            
+Description         Bootstrap Lambda Function ARN                                                                                                                                                                                                
+Value               arn:aws:lambda:us-east-1:784947213393:function:sam-genai-rag-prototype-BootstrapFunction-emQeX4DWAKK1                                                                                                                        
+
+Key                 LandigZoneBucketAccessPoint                                                                                                                                                                                                  
+Description         Arn of the landing zone bucket's access point                                                                                                                                                                                
+Value               arn:aws:s3:us-east-1:784947213393:accesspoint/ingest-access-point                                                                                                                                                            
+
+Key                 DataIngestFunctionIamRole                                                                                                                                                                                                    
+Description         Implicit IAM Role created for Data Ingest function                                                                                                                                                                           
+Value               arn:aws:iam::784947213393:role/sam-genai-rag-prototype-DataIngestFunctionRole-Sth5dqr165r7                                                                                                                                   
+
+Key                 QAFunction                                                                                                                                                                                                                   
+Description         Q&A Lambda Function ARN                                                                                                                                                                                                      
+Value               arn:aws:lambda:us-east-1:784947213393:function:sam-genai-rag-prototype-QAFunction-cabyznxNmrFZ                                                                                                                               
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
