@@ -131,7 +131,7 @@ Adopt the approach as outlined in
 
 ### First time sign-in
 
-Check the inbox of $COGNITO_USER_EMAIL for a temporary password (<TEMP-PASS>). This command will sign in for the first time.
+Check the inbox of $COGNITO_USER_EMAIL for a temporary password (\<TEMP-PASS\>). This command will sign in for the first time.
 ```bash
 $ export COGNITO_SESSION_ID=`aws cognito-idp initiate-auth \
    --auth-flow USER_PASSWORD_AUTH \
