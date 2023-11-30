@@ -13,3 +13,10 @@ curl \
 
 echo ""
 echo ""
+
+curl -X POST -H "Authorization: Bearer $COGNITO_ID_TOKEN" \
+    https://14cuqlv650.execute-api.us-east-1.amazonaws.com/Prod/qa/ \
+   -H 'content-type: application/json' \
+   -d '{"mode": "single_shot", "query": "what is Agda?", "show_sources": "True"}'
+   
+ 
