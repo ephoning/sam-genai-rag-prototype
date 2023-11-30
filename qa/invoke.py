@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Any, Dict
 
 from query_handler_api import handle_query
 
@@ -9,6 +10,18 @@ logger.setLevel(logging.INFO)
 
 trues = ["True", "true", "T", "t"]
 
+
+def get_params(event: Dict[str, Any]) -> Dict[str, Any]:
+    params = None
+    
+    if event['httpMethod'] == "GET":
+        params = event['queryStringParameters']
+    
+    if event['httpMethod'] == "POST":
+        params = event['body']
+        
+    return params
+    
 
 def lambda_handler(event, context):
     """Sample pure Lambda function
@@ -35,30 +48,29 @@ def lambda_handler(event, context):
     log_info += f"{event}\n"
     logger.info(log_info)
     
-    qstrparams = event['queryStringParameters']
-    if not qstrparams:
+    params = get_params(event)
+    
+    if not params or not params.get("query"):
         response = dict(message="Please provide at least a query in your request")
     else:
-        query = event.get("query", qstrparams.get("query"))
-        if not query:
-            response = dict(message="Please provide at least a query in your request")
-        else:
-            mode = event.get("mode", qstrparams.get("mode", "conversation"))  # options: ["conversation", "single_shot"]
-    
-            reset_conversation = event.get("reset_conversation", qstrparams.get("reset_conversation"))
-            reset_conversation = True if reset_conversation in trues else False
-            
-            show_sources = event.get("show_sources", qstrparams.get("show_sources"))
-            show_sources = True if show_sources in trues else False
-            
-            try:
-                session_id = event['requestContext']['authorizer']['claims']['sub'] 
-                logger.info(f"Got session id: {session_id}")
-            except:
-                logger.warn("Could not get 'session id' from event => using 'anonymous' session")
-                session_id = 'anonymous'
-    
-            response = handle_query(dict(session_id=session_id, mode=mode, query=query, show_sources=show_sources, reset_conversation=reset_conversation))
+        query = params.get("query")
+        
+        mode = params.get("mode", "conversation")  # options: ["conversation", "single_shot"]
+
+        reset_conversation = params.get("reset_conversation")
+        reset_conversation = True if reset_conversation in trues else False
+        
+        show_sources = params.get("show_sources")
+        show_sources = True if show_sources in trues else False
+        
+        try:
+            session_id = event['requestContext']['authorizer']['claims']['sub'] 
+            logger.info(f"Got session id: {session_id}")
+        except:
+            logger.warn("Could not get 'session id' from event => using 'anonymous' session")
+            session_id = 'anonymous'
+
+        response = handle_query(dict(session_id=session_id, mode=mode, query=query, show_sources=show_sources, reset_conversation=reset_conversation))
 
     return {
         "statusCode": 200,
