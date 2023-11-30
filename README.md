@@ -60,6 +60,27 @@ $ cd <project base directory>
 $ sam build && sam deploy
 ```
 
+or, when using Cognito in your template.yaml to secure API endpoints (which is currently the case for the 'bootstrap' and 'qa' endpoints / lambda functions):
+```bash
+$ export COGNITO_USER_EMAIL='me@example.com'
+
+$ sam build && sam deploy --parameter-overrides CognitoUserEmail=$COGNITO_USER_EMAIL
+```
+
+Make note of all of the outputs, and use it for:
+
+* Set/export the value of the key ***CognitoClientId***:
+```bash
+export COGNITO_CLIENT_ID=<client id>
+```
+
+* Set/export the value of the key ***CognitoUSerPoolId***:
+```bash
+export COGNITO_USER_POOL_ID=<user pool id>
+```
+
+* Note the URLs to use for accessing the API per the ***BootstrapAPi*** and ***QAApi*** keys in the output
+
 -------------------
 ## Manual resource creation and/or configuration
 Currently, not all required resources are created or configured are represented in 'template.yaml':
@@ -71,7 +92,7 @@ Currently, IAM related configuration and/or resource creation is accomplished us
 * Allow the 'data ingest' lambda to invoke models per:
 ```
       using the IAM UI
-      - in sam-genai-rag-prototype CloudFormation stack, browse to ...dataiingestfunctionrole...
+      - in sam-genai-rag-prototype CloudFormation stack, browse to ...DataIngestFunctionRole...
       - select: Add permissions - Create inline policy
 
       - select: Select a service: bedrock
@@ -89,14 +110,14 @@ Currently, IAM related configuration and/or resource creation is accomplished us
       - click 'Create policy'
 
 ```
-* Repeat the above IAM UI interaction for the QAFunction lambda
+* Repeat the above IAM UI interaction for the QAFunctionRole
 
 * Create API Gateway
 ```
 - browse to 'API Gateway' service
 - find 'GenAIPrototype' API and click it
 - click orange 'DeployAPI' button
-- enter a 'Stage' name
+- enter a 'Stage' name (note that the stge name is featured in the URLs for accessing/calling the lambda functions)
 - click 'Deploy'
 ```
 
@@ -107,34 +128,27 @@ Adopt the approach as outlined in
 * https://scriptingis.life/Cognito-AWS-SAM/
 * https://github.com/scriptingislife/sam-cognito-example
 
-## steps (from: https://scriptingis.life/Cognito-AWS-SAM/#authenticated-requests)
-### Build / deploy
-```bash
-$ export COGNITO_USER_EMAIL='me@example.com'
-
-$ sam build && sam deploy --parameter-overrides CognitoUserEmail=$COGNITO_USER_EMAIL
-```
-Make note of all of the outputs.
 
 ### First time sign-in
-Check the inbox of $COGNITO_USER_EMAIL for a temporary password. This command will sign in for the first time.
+
+Check the inbox of $COGNITO_USER_EMAIL for a temporary password (<TEMP-PASS>). This command will sign in for the first time.
 ```bash
-$ aws cognito-idp initiate-auth \
+$ export COGNITO_SESSION_ID=`aws cognito-idp initiate-auth \
    --auth-flow USER_PASSWORD_AUTH \
    --auth-parameters "USERNAME=$COGNITO_USER_EMAIL,PASSWORD=<TEMP-PASS>" \
-   --client-id <CLIENT-ID> \
+   --client-id $COGNITO_CLIENT_ID \
    --query "Session" \
    --output text \
-   --region us-east-1
+   --region us-east-1`
 ```
-Use the output in the next command. This command will set a new password and provide the final token.
+Notice the use of the 'captured' ***session id*** in the next command. This command will set a new password and provide the final ***id token*** to use in the Authorization header of API URL calls.
 ```bash
 aws cognito-idp admin-respond-to-auth-challenge \
-   --user-pool-id <USER-POOL> \
-   --client-id <CLIENT-ID> \
+   --user-pool-id $COGNITO_USER_POOL_ID \
+   --client-id $COGNITO_CLIENT_ID \
    --challenge-responses "USERNAME=$COGNITO_USER_EMAIL,NEW_PASSWORD=<NEW-PASS>" \
    --challenge-name NEW_PASSWORD_REQUIRED \
-   --session <SESSION> \
+   --session $COGNITO_SESSION_ID \
    --region us-east-1
 ```
 
@@ -163,6 +177,16 @@ $ aws cognito-idp initiate-auth \
 
 $ export COGNITO_ID_TOKEN="eyJraWQiOiJGa3FyRldNQlF5OHhiQzZXODByeHdNYTVXRDRyUFFIM2IxTXptNjJRK1pnPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI0MjRmYmIxNy00MTNkLTQ1NDQtYjhjZi01NDRlMGYwYjQ0MzkiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV9iYzlUMHZvMTMiLCJjb2duaXRvOnVzZXJuYW1lIjoiNDI0ZmJiMTctNDEzZC00NTQ0LWI4Y2YtNTQ0ZTBmMGI0NDM5Iiwib3JpZ2luX2p0aSI6IjI5ZWU3MmU5LTgwZjctNDFmYS04YWEwLWJmNTMxMTQ3N2VhNyIsImF1ZCI6IjZnb2Q5Y3Vza29sanBtb21paWZmdGhjcTRuIiwiZXZlbnRfaWQiOiJhOWZjYjExNy04ODMxLTRlNDYtOGRjMC03MWY0N2VkOWMwOTciLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTcwMTIwNDc3MCwiZXhwIjoxNzAxMjA4MzcwLCJpYXQiOjE3MDEyMDQ3NzAsImp0aSI6IjI1MjJkZmVjLTA1ZjUtNDkxZC05MjAyLWI0YmM5ODBhMDgxNCIsImVtYWlsIjoiZWRnYXIuaG9uaW5nQGFoZWFkLmNvbSJ9.pxZ1XUEEc6uUJB5LtYcnoAI1eFHKRWsUZxaN-ufrJM_0JMf9IparCKNKw_Loq5AzDt7gh7Vy-f3CrdfWRvwxaqJW41TSCb9Yt_NUlbwK6O8NizxD6109fSnDhIFa-QjRE_H9Q2ar-yY5Fvp52PG3kVLlvdZ_rbRSraKKMb6GbDOJJv2JtvPkD5eDmgkynMUvC0gTbEEDy09HZ9LAkC3nfm1S7CzemAO6xO0qlPyVjWPUPYz8XFHrO8XNLGWljyDzB66mMRq93u3pLUuUM0KBQ5wTqyj0TuLSSkCT1R9zS7KRHJ6eZ4rklsNgCq9dnZPhxVFzzE5BBSzN7xgpgw7UWA"
 ```
+
+To facilitate easy capture/retention of the id token, you can use the script named ***get_cognito_id_token.sh*** instead of manually calling ```aws cognito-idp initiate-auth ...``` and parsing the JSON output.
+
+The script makes the aws cli call, parses the JSON output, and sets the ***COGNITO_ID_TOKEN*** environment variable.
+
+MAke sure the call this scripts as follows:
+```bash
+$ . ./get_cognito_id_token.sh <user's email address> <user's password>
+```
+Note the '.' at the start of the invocation to have the value of ***COGNITO_ID_TOKEN*** be set in the current environment (and not the script's (temp/sub) environment)
 
 We can now use the 'id token' to access the lambdas as exposed by the API gateway as in the following examples:
 

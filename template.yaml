@@ -251,7 +251,7 @@ Outputs:
     Description: "Implicit IAM Role created for Data Ingest function"
     Value: !GetAtt DataIngestFunctionRole.Arn
 
-  UserPoolId:
+  CognitoUserPoolId:
     Description: "ID of the Cognito User Pool"
     Value: !Ref UserPool
   CognitoClientId:

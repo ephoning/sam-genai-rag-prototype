@@ -25,7 +25,7 @@ aws cognito-idp initiate-auth \
 cat cognito_response.json
 
 # note: using '-r' to avoid including the surrounding double quotes in the captured token values 
-export COGNITO_ACCESS_TOKEN=`jq -r '..|.AccessToken?|select(.)' cognito_response.json`
+#export COGNITO_ACCESS_TOKEN=`jq -r '..|.AccessToken?|select(.)' cognito_response.json`
 export COGNITO_ID_TOKEN=`jq -r '..|.IdToken?|select(.)' cognito_response.json`
 
 echo "exported COGNITO_ACCESS_TOKEN and COGNITO_ID_TOKEN"
