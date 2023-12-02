@@ -5,6 +5,8 @@ import pinecone
 import time
 from typing import Any
 
+from doc_handler_api import get_vector_dimension_from_document
+
 from constants import *
 
 logger = logging.getLogger()
@@ -23,18 +25,42 @@ max_docs = 1000
 max_docs_batch_length = 100 
 
 
-def create_pinecone_index(index_name: str, api_key: str, environment: str, dimension: int, metric='dotproduct', verbose=False) -> None:
-    if not environment:
-        environment = default_pinecone_environment
+
+def pinecone_index_exists(index_name: str, api_key: str, environment: str) -> bool:
     if not index_name:
         index_name = default_pinecone_index_name
+    if not api_key:
+        api_key = default_pinecone_api_key
+    if not environment:
+        environment = default_pinecone_environment
         
     pinecone.init(api_key=api_key, environment=environment)
     logger.info("Pinecone initialized")
-    if index_name in pinecone.list_indexes():
+    return index_name in pincone.list_indexes()
+    
+    
+def destroy_pinecone_index(index_name: str, api_key: str, environment: str) -> None:
+    if pinecone_index_exists(index_name, api_key, environment):
+        logger.info(f"Destroying pre-existing index named '{index_name}'")
+        pinecone.delete_index(index_name)
+
+    
+def create_pinecone_index(index_name: str, api_key: str, environment: str, dimension: int, metric='dotproduct', verbose=False) -> None:
+    if not index_name:
+        index_name = default_pinecone_index_name
+    if not api_key:
+        api_key = default_pinecone_api_key
+    if not environment:
+        environment = default_pinecone_environment
+
+    pinecone.init(api_key=api_key, environment=environment)
+    logger.info("Pinecone initialized")
+    
+    if pinecone_index_exists(index_name, api_key, environment):
         logger.info(f"Deleting pre-existing index named '{index_name}'")
         pinecone.delete_index(index_name)
-        logger.info(f"Creating index named '{index_name}' with dimension '{dimension}' and metric '{metric}'")
+        
+    logger.info(f"Creating index named '{index_name}' with dimension '{dimension}' and metric '{metric}'")
     pinecone.create_index(name=index_name, dimension=dimension, metric=metric)
     # wait for index to finish initialization
     while not pinecone.describe_index(index_name).status["ready"]:

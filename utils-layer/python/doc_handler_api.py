@@ -3,16 +3,24 @@ import os
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import logging
+import numpy as np
 import traceback
 from typing import Any, Dict, List
 
 from s3_api import download_object
 from bedrock_api import get_bedrock_client, get_embeddings_client
-from vector_db_api import populate_pinecone_index
+from vector_db_api import pinecone_index_exists, create_pinecone_index, populate_pinecone_index
 
+
+default_index_name = os.environ["DEFAULT_PINECONE_INDEX_NAME"]
+default_api_key = os.environ["DEFAULT_PINECONE_API_KEY"]
+default_environment = os.environ["DEFAULT_PINECONE_ENVIRONMENT"]
+default_dimension = int(os.environ["DEFAULT_EMBEDDING_DIMENSION"])
+default_metric = os.environ["DEFAULT_PINECONE_METRIC"]
+
+first_document_sets_embedding_dimension = os.environ["FIRST_DOCUMENT_SETS_EMBEDDING_DIMENSION"] == 'True'
 
 local_temp_storage_root = '/tmp'
-
 
 bedrock_client = None
 embeddings_client = None
@@ -60,22 +68,57 @@ def sanitize_key(key):
     k = k.replace('+', '')
     k = k.replace('-', '')
     return k
-    
-    
-def handle_document(bucket, key):
-    _, embeddings_client = get_clients()
 
-    index_name = os.environ['DEFAULT_PINECONE_INDEX_NAME']
-    sanitized_key = sanitize_key(key)
-    local_file_path = f"{local_temp_storage_root}/{sanitized_key}"
-    metadata = dict(source=key)  # note: 'source' matches what is expected when running inference with source attribution
+
+def get_vector_dimension_from_document(bucket, key) -> int:
+    _, embeddings_client = get_clients()
+    
+    local_file_path = f"{local_temp_storage_root}/{key}"
+    metadata = dict(source=key)
     
     try:
         download_object(bucket, key, local_file_path)
         doc_chunks = create_doc_chunks(local_file_path, metadata)
-        logger.info(f"first doc chunk details: {doc_chunks[0]}")
+        logger.info(f"First doc chunk details: {doc_chunks[0]}")
+        logger.info("Get embedding vector and its dimension")
+        sample_embedding = np.array(embeddings_client.embed_query(doc_chunks[0].page_content))
+        dimension = sample_embedding.shape[0]
+        logger.info(f"Got dimension: {dimension}")
+        return dimension
+        
+    except Exception as e:
+        logger.error(f"Failed to process contents of '{bucket}' / '{key}' due to: '{e}'")
+        tb = traceback.format_exc()
+        logger.error(f"Traceback: {tb}")
+        raise e
+        
+    finally:
+        if os.path.exists(local_file_path):
+            os.remove(local_file_path)
+
+    
+def handle_document(bucket, key):
+    _, embeddings_client = get_clients()
+
+    sanitized_key = sanitize_key(key)
+    local_file_path = f"{local_temp_storage_root}/{sanitized_key}"
+    metadata = dict(source=key)  # note: 'source' matches what is expected when running inference with source attribution
+    
+    if not pinecone_index_exists(default_index_name, default_api_key, default_environment):
+        if first_document_sets_embedding_dimension:
+                        
+            dimension = get_vector_dimension_from_document(bucket, key)
+            create_pinecone_index(default_index_name, default_api_key, default_environment, dimension, default_metric, verbose=True)
+            logger.info(f"'JIT' created Pinecone index named {default_index_name} with api_key={default_api_key} / environment={default_environment} / dimension={default_dimension} / metric={default_metric}")
+        else:
+            logger.error(f"Pinecone index {default_index_name} does not exist - make sure to invoke 'bootstrap' to create it before uploading documents to the landing zone S3 bucket")
+        
+    try:
+        download_object(bucket, key, local_file_path)
+        doc_chunks = create_doc_chunks(local_file_path, metadata)
+        logger.info(f"First doc chunk details: {doc_chunks[0]}")
         logger.info("Start inserting doc chunks into Pinecone")
-        populate_pinecone_index(doc_chunks, embeddings_client, index_name, verbose=False)
+        populate_pinecone_index(doc_chunks, embeddings_client, default_index_name, verbose=False)
         logger.info("Inserting doc chunks into Pinecone completed")
     except Exception as e:
         logger.error(f"Failed to process contents of '{bucket}' / '{key}' due to: '{e}' - ignoring")

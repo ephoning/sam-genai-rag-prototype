@@ -18,7 +18,8 @@ Globals:
         DEFAULT_PINECONE_METRIC: "dotproduct"
         DEFAULT_MODEL_ID: 'anthropic.claude-instant-v1'
         DEFAULT_EMBEDDINGS_MODEL_ID: "amazon.titan-embed-text-v1"
-        EMBEDDING_DIMENSION: 1536   # embedding vector dimensionality; should be based on a sample text chunk embedding...
+        FIRST_DOCUMENT_SETS_EMBEDDING_DIMENSION: True  # the first doc to be processed will be used to create the Pincone index with an appropriate embedding dimension (i.e., "JIT" initialization)
+        DEFAULT_EMBEDDING_DIMENSION: 1536   # hardcodedembedding vector dimensionality; will be used if 'FIRST_DOC_SET_EMBEDDING_DIMENSION' = False
         DEFAULT_MAX_TOKEN_LIMIT: 1000
 
 
