@@ -15,7 +15,7 @@ default_environment = os.environ["DEFAULT_PINECONE_ENVIRONMENT"]
 default_dimension = int(os.environ["DEFAULT_EMBEDDING_DIMENSION"])
 default_metric = os.environ["DEFAULT_PINECONE_METRIC"]
 
-first_document_sets_embedding_dimension = os.environ["FIRST_DOCUMENT_SETS_EMBEDDING_DIMENSION"] == 'True'
+first_document_sets_embedding_dimension = os.environ["FIRST_DOCUMENT_SETS_EMBEDDING_DIMENSION"] == 'True' or os.environ["FIRST_DOCUMENT_SETS_EMBEDDING_DIMENSION"]
 dimension = int(os.environ["DEFAULT_EMBEDDING_DIMENSION"])
 
 metric = os.environ["DEFAULT_PINECONE_METRIC"]
@@ -32,7 +32,7 @@ def lambda_handler(event, context):
     else:
         if index_exists:
             destroy_pinecone_index(default_index_name, default_api_key, default_environment)
-        create_pinecone_index(default_index_name, default_api_key, default_environment, default_dimension, default_metric=metric, verbose=True)
+        create_pinecone_index(default_index_name, default_api_key, default_environment, default_dimension, default_metric, verbose=True)
         message = f"(Re-)created Pinecone index named {default_index_name} with api_key={default_api_key} / environment={default_environment} / dimension={default_dimension} / metric={default_metric}"
 
     logger.info(message)

@@ -18,7 +18,7 @@ default_environment = os.environ["DEFAULT_PINECONE_ENVIRONMENT"]
 default_dimension = int(os.environ["DEFAULT_EMBEDDING_DIMENSION"])
 default_metric = os.environ["DEFAULT_PINECONE_METRIC"]
 
-first_document_sets_embedding_dimension = os.environ["FIRST_DOCUMENT_SETS_EMBEDDING_DIMENSION"] == 'True'
+first_document_sets_embedding_dimension = os.environ["FIRST_DOCUMENT_SETS_EMBEDDING_DIMENSION"] == 'True' or os.environ["FIRST_DOCUMENT_SETS_EMBEDDING_DIMENSION"]
 
 local_temp_storage_root = '/tmp'
 
