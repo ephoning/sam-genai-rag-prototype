@@ -34,7 +34,7 @@ def pinecone_index_exists(index_name: str, api_key: str, environment: str) -> bo
         
     pinecone.init(api_key=api_key, environment=environment)
     logger.info("Pinecone initialized")
-    return index_name in pincone.list_indexes()
+    return index_name in pinecone.list_indexes()
     
     
 def destroy_pinecone_index(index_name: str, api_key: str, environment: str) -> None:
