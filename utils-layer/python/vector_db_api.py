@@ -5,8 +5,6 @@ import pinecone
 import time
 from typing import Any
 
-from doc_handler_api import get_vector_dimension_from_document
-
 from constants import *
 
 logger = logging.getLogger()
